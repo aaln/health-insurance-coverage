@@ -58,8 +58,8 @@ export default function PolicyAnalysis() {
     setBreadcrumbs([])
     const query = `overall coverage focused on ${settings.isInNetwork ? "in-network" : "out-of-network"}`
     generateCategories(query, settings, policy)
-      .then((cats) => {
-        setCategories(cats)
+      .then(({categories, formatted_query}) => {
+        setCategories(categories)
       })
       .catch(() => {
         toast.error("Failed to load categories")
@@ -75,6 +75,7 @@ export default function PolicyAnalysis() {
   }
 
   const handleCategorySelect = async (category: CategoryWithSubcategories) => {
+    console.log("handleCategorySelect", category)
     if (!policy) return
     setLoading(true)
     const newBreadcrumbs = [...breadcrumbs, category]
@@ -82,12 +83,12 @@ export default function PolicyAnalysis() {
     const breadcrumbPath = getBreadcrumbPath(newBreadcrumbs)
     const query = `${breadcrumbPath} focused on ${settings.isInNetwork ? "in-network" : "out-of-network"}`
     try {
-      const cats = await generateCategories(
+      const {categories, formatted_query} = await generateCategories(
         query,
         settings,
         policy
       )
-      setCategories(cats)
+      setCategories(categories)
     } catch {
       toast.error("Failed to load categories")
       setCategories([])
@@ -110,12 +111,12 @@ export default function PolicyAnalysis() {
     const breadcrumbPath = getBreadcrumbPath(newBreadcrumbs)
     const query = `${breadcrumbPath || "overall coverage"} focused on ${settings.isInNetwork ? "in-network" : "out-of-network"}`
     try {
-      const cats = await generateCategories(
+      const {categories, formatted_query} = await generateCategories(
         query,
         settings,
         policy
       )
-      setCategories(cats)
+      setCategories(categories)
     } catch {
       toast.error("Failed to load categories")
       setCategories([])
@@ -127,17 +128,18 @@ export default function PolicyAnalysis() {
 
   // New: handle server-side search from CategoryScores
   const handleServerSearch = async (query: string) => {
+    console.log("handleServerSearch", query)
     if (!policy || !query.trim()) return
     setLoading(true)
     setBreadcrumbs([])
     const searchQuery = `${query.trim()} focused on ${settings.isInNetwork ? "in-network" : "out-of-network"}`
     try {
-      const cats = await generateCategories(
+      const {categories, formatted_query} = await generateCategories(
         searchQuery,
         settings,
         policy
       )
-      setCategories(cats)
+      setCategories(categories)
     } catch {
       toast.error("Failed to load categories")
       setCategories([])

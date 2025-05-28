@@ -16,7 +16,7 @@ export async function generateCategories(
     outOfPocketSpent: number
   },
   policy: ParsedPolicy
-): Promise<CategoryWithSubcategories[]> {
+): Promise<{ categories: CategoryWithSubcategories[], formatted_query: string }> {
   try {
     console.log("query", query)
     console.log("context", context)
@@ -32,11 +32,17 @@ export async function generateCategories(
       For Example:
       - Query: "Primary Care Visits"
       - Categories: "Primary Care Visits", "Annual Physicals", "Wellness Visits", "Preventive Care", "Routine Checkups"
-
-      Don't return categories that are generic and aren't subcategories to the query.
+      
+      DO NOT RETURN CATEGORIES THAT ARE GENERIC OR REDUNDANT, OR ARE NOT SUBCATEGORIES TO THE QUERY.
 
       Diabetes Medications should return insulin, etc.
-
+      ADHD Medications should return adderall, ritalin, etc.
+      Depression Medications should return prozac, zoloft, etc.
+      Anxiety Medications should return xanax, valium, etc.
+      Sleep Medications should return ambien, lunesta, etc.
+      Pain Medications should return ibuprofen, naproxen, etc.
+      Heartburn Medications should return prilosec, nexium, etc.
+      
       Score guidelines:
       - A: Excellent coverage (80-100% covered)
       - B: Good coverage (60-80% covered)
@@ -55,15 +61,16 @@ export async function generateCategories(
         },
       ],
       schema: z.object({
+        formatted_query: z.string(),
         categories: z.array(z.object({
-          name: z.string(),
+          name: z.string().describe("The name of the category. Avoid including the words 'in-network' or 'out-of-network' in the name."),
           score: z.enum(["A", "B", "C", "D", "F", 'N/A']),
           description: z.string(),
         })),
       }),
-    }) as { categories: CategoryWithSubcategories[] }
+    }) as { categories: CategoryWithSubcategories[], formatted_query: string }
 
-    return result.categories;
+    return result;
   } catch (error) {
     console.error("Error generating categories:", error)
     // Return default categories on error

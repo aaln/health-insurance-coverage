@@ -10,7 +10,7 @@ export function getScoreColor(score: string): string {
     case "A":
       return "bg-green-500"
     case "B":
-      return "bg-green-400"
+      return "bg-emerald-400"
     case "C":
       return "bg-yellow-500"
     case "D":
