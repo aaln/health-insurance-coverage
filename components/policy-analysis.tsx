@@ -156,6 +156,10 @@ export default function PolicyAnalysis() {
     // handleServerSearch(suggestion)
   }
 
+  if(!policy) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col h-[calc(100vh-180px)] bg-white rounded-lg shadow-lg">
       <SettingsBar settings={settings} onSettingsChange={handleSettingsChange} />

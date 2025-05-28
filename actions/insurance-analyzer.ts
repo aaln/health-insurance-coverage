@@ -44,11 +44,13 @@ export async function generateCategories(
       Heartburn Medications should return prilosec, nexium, etc.
       
       Score guidelines:
-      - A: Excellent coverage (80-100% covered)
-      - B: Good coverage (60-80% covered)
-      - C: Fair coverage (40-60% covered)
-      - D: Poor coverage (20-40% covered)
-      - F: Very poor or no coverage (0-20% covered)
+      - A: Excellent coverage (80-100% covered). Insurance covers most or all costs, with minimal out-of-pocket expenses. No significant caps, limits, or exclusions. Coverage continues even for high-cost or ongoing care.
+      - B: Good coverage (60-80% covered). Insurance covers a substantial portion, but you may have moderate copays, coinsurance, or some limits (e.g., visit caps, annual maximums). Coverage may stop or decrease after a certain threshold, but most typical needs are well covered.
+      - C: Fair coverage (40-60% covered). Insurance pays for part of the cost, but you are responsible for significant out-of-pocket expenses. There may be notable restrictions, such as high deductibles, low annual maximums, or coverage only up to a certain dollar amount or number of visits. After reaching these limits, you may pay full price.
+      - D: Poor coverage (20-40% covered). Insurance provides minimal help. Most costs are paid by you, or coverage is only for very basic needs. There may be strict caps, high copays, or many exclusions. Insurance may only pay up to a small limit, after which you are responsible for all costs.
+      - F: Very poor or no coverage (0-20% covered). Insurance covers almost nothing, or only in rare circumstances. Most or all expenses are your responsibility, and there may be outright exclusions or denials for this category.
+      
+      When assigning a score, consider not just the percentage covered, but also whether there are annual/lifetime maximums, visit or dollar caps, high deductibles, coinsurance, or situations where insurance stops paying after a certain point. Be specific in the description about any such limitations, partial coverage, or when the patient would be responsible for the full cost.
       
       Consider the context: ${context.isInNetwork ? "In-Network" : "Out-of-Network"}, 
       Deductible spent: $${context.deductibleSpent}, Out-of-pocket spent: $${context.outOfPocketSpent}
@@ -74,7 +76,7 @@ export async function generateCategories(
   } catch (error) {
     console.error("Error generating categories:", error)
     // Return default categories on error
-    return []
+    return { categories: [], formatted_query: "" }
   }
 }
 

@@ -8,6 +8,8 @@ import { FileIcon, UploadIcon, XIcon, Loader2 } from "lucide-react";
 import { parseSBCFile } from "@/actions/parse";
 import { toast } from "sonner";
 import { ParsedPolicy, usePolicy } from "./policy-context";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { policyTemplate1, policyTemplate2 } from "@/policy-templates";
 
 interface FileUploadProps {
   acceptedFileTypes?: string;
@@ -24,6 +26,7 @@ export default function FileUpload({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
+  const [cardLoading, setCardLoading] = useState<string | null>(null);
 
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
@@ -90,14 +93,28 @@ export default function FileUpload({
   React.useEffect(() => {
     if (isPending && uploadProgress < 90) {
       const interval = setInterval(() => {
-        setUploadProgress((p) => (p < 90 ? p + 1 : p));
+        setUploadProgress((p) => (p < 90 ? p + 1.5 : p));
       }, 1000);
       return () => clearInterval(interval);
     }
   }, [isPending, uploadProgress]);
 
+  // Add this function for card click
+  const handleTemplateClick = async (template: ParsedPolicy, id: string) => {
+    setCardLoading(id);
+    try {
+      setPolicy(template);
+      toast.success("Policy template loaded!");
+    } finally {
+      setCardLoading(null);
+    }
+  };
+
   return (
     <div className="w-full">
+      {/* Policy Template Cards */}
+     
+      {/* File Upload Form */}
       <form
         ref={formRef}
         action={async () => {
@@ -165,7 +182,7 @@ export default function FileUpload({
               disabled={isPending}
             >
               {isPending ? <Loader2 className="animate-spin h-4 w-4 mr-2 inline" /> : null}
-              {isPending ? "Parsing..." : "Parse PDF"}
+              {isPending ? "Parsing..." : "Parse Policy Document"}
             </Button>
           </div>
         )}
@@ -175,6 +192,35 @@ export default function FileUpload({
           </div>
         )}
       </form>
+      <div className="flex gap-4 mt-6">
+        {[{template: policyTemplate1, id: "1"}, {template: policyTemplate2, id: "2"}].map(({template, id}) => (
+          <Card key={id} className="w-72 cursor-pointer hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="truncate">{template.plan_summary.plan_name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-2">
+                <img
+                  src={template.image_urls[0]}
+                  alt={template.plan_summary.plan_name + " preview"}
+                  className="rounded-md w-full h-36 object-cover border"
+                  loading="lazy"
+                />
+              </div>
+              <div className="text-sm font-medium mb-1">{template.plan_summary.issuer_name}</div>
+              <Button
+                className="w-full mt-2"
+                variant="secondary"
+                disabled={cardLoading === id}
+                onClick={() => handleTemplateClick(template, id)}
+              >
+                {cardLoading === id ? <Loader2 className="animate-spin h-4 w-4 mr-2 inline" /> : null}
+                {cardLoading === id ? "Loading..." : "Use this template"}
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

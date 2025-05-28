@@ -3,9 +3,19 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Download } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
+import React from "react";
+
 export function PolicySelector() {
-  const { policy } = usePolicy();
-  
+  const { policy, setPolicy } = usePolicy();
+  const [removing, setRemoving] = React.useState(false);
+
+  const handleRemove = async () => {
+    setRemoving(true);
+    setPolicy(null);
+    toast.success("Policy removed");
+    setRemoving(false);
+  };
 
   return (
     <Popover>
@@ -46,6 +56,20 @@ export function PolicySelector() {
                 View PDF Policy
               </Button>
             </Link>
+            <Button
+              variant="outline"
+              className="w-full flex items-center gap-2 mt-1"
+              onClick={handleRemove}
+              disabled={removing}
+            >
+              {removing && (
+                <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+              )}
+              Remove Policy
+            </Button>
           </div>
         ) : (
           <div className="text-sm text-muted-foreground">No policy loaded. Upload a policy to view details.</div>

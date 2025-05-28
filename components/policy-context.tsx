@@ -108,7 +108,7 @@ export const PolicyProvider = ({ children }: { children: ReactNode }) => {
         } catch {}
       }
     }
-  }, [composerRuntime, setPolicyState, policy]);
+  }, []);
 
   // Save to localStorage on change
   useEffect(() => {
