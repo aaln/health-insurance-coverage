@@ -58,7 +58,7 @@ export default function PolicyAnalysis() {
     setBreadcrumbs([])
     const query = `overall coverage focused on ${settings.isInNetwork ? "in-network" : "out-of-network"}`
     generateCategories(query, settings, policy)
-      .then(({categories, formatted_query}) => {
+      .then(({categories}) => {
         setCategories(categories)
       })
       .catch(() => {
@@ -83,7 +83,7 @@ export default function PolicyAnalysis() {
     const breadcrumbPath = getBreadcrumbPath(newBreadcrumbs)
     const query = `${breadcrumbPath} focused on ${settings.isInNetwork ? "in-network" : "out-of-network"}`
     try {
-      const {categories, formatted_query} = await generateCategories(
+      const {categories} = await generateCategories(
         query,
         settings,
         policy
@@ -111,7 +111,7 @@ export default function PolicyAnalysis() {
     const breadcrumbPath = getBreadcrumbPath(newBreadcrumbs)
     const query = `${breadcrumbPath || "overall coverage"} focused on ${settings.isInNetwork ? "in-network" : "out-of-network"}`
     try {
-      const {categories, formatted_query} = await generateCategories(
+      const {categories} = await generateCategories(
         query,
         settings,
         policy
@@ -134,7 +134,7 @@ export default function PolicyAnalysis() {
     setBreadcrumbs([])
     const searchQuery = `${query.trim()} focused on ${settings.isInNetwork ? "in-network" : "out-of-network"}`
     try {
-      const {categories, formatted_query} = await generateCategories(
+      const {categories} = await generateCategories(
         searchQuery,
         settings,
         policy

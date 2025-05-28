@@ -20,25 +20,24 @@
 
 Whether you're a consumer, advocate, or developer, this project aims to make health insurance more transparent and accessible for everyone.
 
+
 ## 🚀 Features
 
 | Feature | Description |
 |---------|-------------|
 | 📄 PDF Upload & Parsing | Upload your SBC PDF and auto-extract plan details |
-| 🤖 AI-Powered Analysis | Get coverage ratings, cost estimates, and recommendations for common healthcare situations |
+| 🤖 AI-Powered Analysis | Coverage ratings, cost estimates, and recommendations for common healthcare situations |
 | 🏷️ Interactive Category Explorer | Drill down into specific services, medications, or treatments and see detailed coverage info |
-| 🔒 Privacy First | Your data is processed securely and never shared |
 | 🧑‍💻 Policy Templates | Try the app instantly with built-in sample policies |
 | 📊 Visual Summaries | See tables of covered, excluded, and other services |
-| ⚡ Fast, Modern UI | Built with Next.js, Tailwind, and Magic UI for a delightful experience |
 
 ## 🛠 Tech Stack
 
 - [Next.js 15](https://nextjs.org/) – Framework
 - [TypeScript](https://www.typescriptlang.org/) – Language
 - [Tailwind CSS](https://tailwindcss.com/) – Styling
+- [@assistant-ui/react](https://github.com/assistant-ui/assistant-ui) – AI Chat React UI Framework
 - [shadcn/ui](https://ui.shadcn.com) & [magicui](https://ui.magicui.com) – UI Components
-- [@assistant-ui/react](https://github.com/Yonom/assistant-ui) – AI UI Framework
 - [Anthropic, Groq](https://platform.openai.com/) – AI Models
 - [Zod](https://zod.dev/) – Schema Validation
 - [Bun](https://bun.sh) – Fast JS Runtime & Package Manager
