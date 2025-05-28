@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Github, MessagesSquare } from "lucide-react"
+import { Github, HeartPlus, MessagesSquare } from "lucide-react"
 import Link from "next/link"
 import {
   Sidebar,
@@ -22,10 +22,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
                 <Link href="https://assistant-ui.com" target="_blank">
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <MessagesSquare className="size-4" />
+                    <HeartPlus className="size-4" />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-semibold">assistant-ui</span>
+                    <span className="font-semibold">Health Insurance Coverage</span>
                   </div>
                 </Link>
               </SidebarMenuButton>
@@ -48,7 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">GitHub</span>
-                  <span className="">View Source</span>
+                  <span className="">View Open Source</span>
                 </div>
               </Link>
             </SidebarMenuButton>

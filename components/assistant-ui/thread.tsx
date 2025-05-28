@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { ToolFallback } from "./tool-fallback";
+import FileUpload from "../file-upload";
 
 export const Thread: FC = () => {
   return (
@@ -72,12 +73,16 @@ const ThreadScrollToBottom: FC = () => {
 const ThreadWelcome: FC = () => {
   return (
     <ThreadPrimitive.Empty>
-      <div className="flex w-full max-w-[var(--thread-max-width)] flex-grow flex-col">
-        <div className="flex w-full flex-grow flex-col items-center justify-center">
-          <p className="mt-4 font-medium">How can I help you today?</p>
+        <div className="flex w-full max-w-[var(--thread-max-width)] flex-grow flex-col">
+          {/* <div className="flex w-full flex-grow flex-col items-center justify-center">
+            <p className="mt-4 font-medium">How can I help you today?</p>
+          </div> */}
+          {/* <ThreadWelcomeSuggestions /> */}
+          {/* <div className="flex w-full flex-col items-center justify-center py-4">
+            <p className="font-medium">How can I help you today?</p>
+          </div> */}
+        
         </div>
-        <ThreadWelcomeSuggestions />
-      </div>
     </ThreadPrimitive.Empty>
   );
 };

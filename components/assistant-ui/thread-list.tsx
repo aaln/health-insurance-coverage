@@ -22,7 +22,7 @@ const ThreadListNew: FC = () => {
     <ThreadListPrimitive.New asChild>
       <Button className="data-[active]:bg-muted hover:bg-muted flex items-center justify-start gap-1 rounded-lg px-2.5 py-2 text-start" variant="ghost">
         <PlusIcon />
-        New Thread
+        New Policy Analysis
       </Button>
     </ThreadListPrimitive.New>
   );

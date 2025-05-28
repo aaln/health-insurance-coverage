@@ -6,40 +6,66 @@ import { Thread } from "@/components/assistant-ui/thread";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
+import { PolicyProvider } from "@/components/policy-context";
+import { PolicySelector } from "@/components/policy-selector";
+import { AssistantModal } from "@/components/assistant-ui/assistant-modal";
+import FileUpload from "@/components/file-upload";
+import Link from "next/link";
+import { HeartPlus } from "lucide-react";
+import { PolicyOverview } from "@/components/policy-overview";
+import PolicyAnalysis from "@/components/policy-analysis";
+import { SettingsBar } from "@/components/settings-bar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const Assistant = () => {
   const runtime = useChatRuntime({
     api: "/api/chat",
   });
 
+  const isMobile = useIsMobile();
   return (
     <AssistantRuntimeProvider runtime={runtime}>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-            <SidebarTrigger />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    Build Your Own ChatGPT UX
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>
-                    Starter Template
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </header>
-          <Thread />
-        </SidebarInset>
-      </SidebarProvider>
+        <PolicyProvider>
+        <SidebarProvider>
+          {/* <AppSidebar /> */}
+          <SidebarInset>
+            <header className="w-full max-w-screen-xl mx-auto flex h-16 shrink-0 items-center gap-2 border-b px-4">
+            <Link href="/" target="_blank">
+              <div className="flex items-center gap-2">
+                
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                    <HeartPlus className="size-4" />
+                  </div>
+                  <div className="flex flex-col gap-0.5 leading-none">
+                    <span className="font-semibold">Health Insurance Coverage</span>
+                  </div>
+                
+              </div>
+              </Link>
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              {/* <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbLink href="#">
+                      Check What Your Health Insurance Covers
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb> */}
+              <div className="flex-1 flex justify-end">
+                <PolicySelector />
+              </div>
+            </header> 
+            <div className="flex flex-col h-full p-4 max-w-screen-xl mx-auto w-full">
+              
+              <PolicyOverview />
+              <PolicyAnalysis />
+            </div>
+            {isMobile && <AssistantModal />}
+          </SidebarInset>
+        </SidebarProvider>
+      </PolicyProvider>
     </AssistantRuntimeProvider>
   );
 };
