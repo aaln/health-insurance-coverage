@@ -1,6 +1,6 @@
 "use server"
 
-import { generateObject, generateText } from "ai"
+import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
 import type { CategoryWithSubcategories } from "@/types/insurance"
 import { groq } from "@ai-sdk/groq"
@@ -61,7 +61,7 @@ export async function generateCategories(
           description: z.string(),
         })),
       }),
-    })
+    }) as { categories: CategoryWithSubcategories[] }
 
     return result.categories;
   } catch (error) {
@@ -70,6 +70,7 @@ export async function generateCategories(
     return []
   }
 }
+
 export async function generateSituations(
   query: string,
   context: {
@@ -96,7 +97,7 @@ export async function generateSituations(
       schema: z.object({
         situations: z.array(z.string()),
       }),
-    })
+    }) as { situations: string[] }
 
     return result.situations;
   } catch (error) {

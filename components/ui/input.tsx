@@ -1,14 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { AlertCircle, Check } from "lucide-react";
 import * as React from "react";
 import { NumericFormat } from "react-number-format";
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
-
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
+const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, type, ...props }, ref) => {
     return (
       <input
@@ -25,20 +21,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 );
 Input.displayName = "Input";
 
-interface ValidationIconProps {
-  isValid: boolean;
-  showIcon: boolean;
-}
-
-const ValidationIcon = ({ isValid, showIcon }: ValidationIconProps) => {
-  if (!showIcon) return null;
-
-  return isValid ? (
-    <Check className="w-5 h-5 text-green-500 absolute right-3 top-2.5" />
-  ) : (
-    <AlertCircle className="w-5 h-5 text-red-500 absolute right-3 top-2.5" />
-  );
-};
 
 interface CurrencyInputProps {
   name: string;
@@ -54,16 +36,10 @@ interface CurrencyInputProps {
 const CurrencyInput = ({
   value,
   placeholder,
-  min = 0,
-  max,
   onChange,
   onBlur,
   className = "",
 }: CurrencyInputProps) => {
-  const isValid =
-    value !== undefined && value >= min && (max === undefined || value <= max);
-  const showValidation = value !== undefined;
-
   return (
     <div className="relative">
       <NumericFormat
@@ -100,12 +76,7 @@ const PercentageInput = ({
   onChange,
   className = "",
   decimalScale = 3,
-  valid,
 }: PercentageInputProps) => {
-  const isValid =
-    valid !== undefined ? valid : value !== undefined && value >= 0;
-  const showValidation = valid !== undefined ? valid : value !== undefined;
-
   return (
     <div className="relative">
       <NumericFormat
@@ -119,7 +90,6 @@ const PercentageInput = ({
         }}
         className={`w-full p-2 pr-10 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${className}`}
       />
-      <ValidationIcon isValid={isValid} showIcon={showValidation} />
     </div>
   );
 };

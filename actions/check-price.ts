@@ -39,5 +39,5 @@ export const checkPrice = async (args: z.infer<typeof priceCheckSchema>): Promis
     schema,
   });
 
-  return result;
+  return result as unknown as { results: PriceCheckResult[] };
 }; 

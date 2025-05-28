@@ -61,7 +61,7 @@ export async function processFileWithUnstructured(file_buffer: ArrayBuffer, file
     }
 
   } catch (error) {
-    if ('statusCode' in error && 'body' in error) {
+    if (error && typeof error === 'object' && 'statusCode' in error && 'body' in error) {
       console.error('API Error:', error.statusCode, error.body);
     } else {
       console.error('Error:', error);

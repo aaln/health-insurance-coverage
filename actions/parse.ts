@@ -4,8 +4,8 @@ import { processFileWithUnstructured } from "@/lib/unstructured";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { put } from '@vercel/blob';
-import { task, tasks } from "@trigger.dev/sdk/v3";
-import { PdfToImagesTask } from "@/trigger/pdf-to-images";
+import { tasks } from "@trigger.dev/sdk/v3";
+import type { ParsedPolicy, ServiceYouMayNeed } from "@/components/policy-context";
 
 const CommonMedicalEventSericeTypes = {
     PrimaryCareVisit: "primary_care_visit",
@@ -40,33 +40,23 @@ const CommonMedicalEventSericeTypes = {
     ChildrensDentalCheckup: "childrens_dental_checkup"
 };
 
-const EventServiceSchema = z.object({
-    what_you_will_pay: z.object({
-        network_provider: z.object({
-            covered: z.boolean(),
-            copayment: z.number().optional(),
-            subject_to_deductible: z.boolean().optional(),
-            details: z.string().optional()
-        }),
-        out_of_network: z.object({
-            covered: z.boolean(),
-            copayment: z.number().optional(),
-            subject_to_deductible: z.boolean().optional(),
-            details: z.string().optional()
-        }),
-        limitations_exceptions_and_other_important_information: z.string().describe("Important limitations or exclusions that apply. This is on the right most column of the table.")
-    })
-});
-
-type ServiceYouMayNeed = {
-    name: string;
-    what_you_will_pay: {
-        network_provider: string;
-        out_of_network_provider: string;
-        limitations_exceptions_and_other_important_information: string;
-    };
-};
-
+// const EventServiceSchema = z.object({
+//     what_you_will_pay: z.object({
+//         network_provider: z.object({
+//             covered: z.boolean(),
+//             copayment: z.number().optional(),
+//             subject_to_deductible: z.boolean().optional(),
+//             details: z.string().optional()
+//         }),
+//         out_of_network: z.object({
+//             covered: z.boolean(),
+//             copayment: z.number().optional(),
+//             subject_to_deductible: z.boolean().optional(),
+//             details: z.string().optional()
+//         }),
+//         limitations_exceptions_and_other_important_information: z.string().describe("Important limitations or exclusions that apply. This is on the right most column of the table.")
+//     })
+// });
 
 export const parseSBCFile = async (formData: FormData) => {
     const file = formData.get("file");
@@ -101,7 +91,7 @@ export const parseSBCFile = async (formData: FormData) => {
     const services_data = await Promise.all(page_indexes_with_services.map(index => structurePageWithServices(pages_text[index], image_urls[index])));
     console.log("services_data", services_data);
     const services_data_combined = services_data.reduce<ServiceYouMayNeed[]>((acc, data) => {
-        if (data?.services_you_may_need) {
+        if (data && Array.isArray(data.services_you_may_need)) {
             return [...acc, ...data.services_you_may_need];
         }
         return acc;
@@ -123,13 +113,13 @@ export const parseSBCFile = async (formData: FormData) => {
     return {
         file_url,
         image_urls,
-        ...page1,
+        ...(typeof page1 === 'object' && page1 !== null ? page1 : {}),
         services_you_may_need: services_data_combined,
         excluded_and_other_covered_services
     };
 }
 
-export async function structurePage1(text: string, image_url: string) {
+export async function structurePage1(text: string, image_url: string): Promise<ParsedPolicy["plan_summary"] & { important_questions: ParsedPolicy["important_questions"] }> {
     return await generateObjectWithAIRetry({
         model: anthropic("claude-sonnet-4-20250514", { cacheControl: true, }),
         system: `You are a helpful assistant that extracts structured data from page 1 of a Summary of Benefits and Coverage (SBC) document. Return JSON ONLY.`,
@@ -202,7 +192,7 @@ export async function structurePage1(text: string, image_url: string) {
     });
 }
 
-export async function structurePageWithServices(text: string, image_url: string) {
+export async function structurePageWithServices(text: string, image_url: string): Promise<{ services_you_may_need: ServiceYouMayNeed[] }> {
     return await generateObjectWithAIRetry({
         model: anthropic("claude-sonnet-4-20250514"),
         system: `You are a helpful assistant that extracts structured data from a Summary of Benefits and Coverage (SBC) document. Return JSON ONLY.`,

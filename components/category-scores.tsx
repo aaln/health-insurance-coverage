@@ -2,49 +2,31 @@
 
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Search } from "lucide-react"
-import type { HealthCategory, CategoryWithSubcategories } from "@/types/insurance"
+import type { HealthCategory } from "@/types/insurance"
 import { getScoreColor } from "@/lib/utils"
-import { useComposerRuntime } from "@assistant-ui/react"
 
 interface CategoryScoresProps {
   categories: HealthCategory[]
-  isInNetwork: boolean
   onCategorySelect?: (category: HealthCategory) => void
   onSearch?: (query: string) => void
   loading?: boolean
-  situationSuggestions?: string[]
-  situationLoading?: boolean
-  onSuggestionClick?: (suggestion: string) => void
 }
 
 export function CategoryScores({
   categories,
-  isInNetwork,
   onCategorySelect,
   onSearch,
   loading,
-  situationSuggestions = [],
-  situationLoading = false,
-  onSuggestionClick,
 }: CategoryScoresProps) {
   const [searchInput, setSearchInput] = useState("")
-
-  const composerRuntime = useComposerRuntime();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (onSearch && searchInput.trim()) {
       onSearch(searchInput)
     }
-  }
-
-  const handleSuggestionClick = (suggestion: string) => {
-    composerRuntime.setText(suggestion);
-    composerRuntime.send();
-    onSuggestionClick?.(suggestion);
   }
 
   return (
@@ -86,9 +68,6 @@ export function CategoryScores({
                 <div className="flex-1">
                   <h3 className="font-medium flex items-center">
                     {category.name}
-                    {Array.isArray((category as CategoryWithSubcategories).subcategories) && (category as CategoryWithSubcategories).subcategories!.length > 0 && (
-                      <Search className="h-4 w-4 ml-1 text-gray-400" />
-                    )}
                   </h3>
                   <p className="text-sm text-gray-500 mt-1">{category.description}</p>
                 </div>

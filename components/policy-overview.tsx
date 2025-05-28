@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { usePolicy } from "./policy-context";
 import FileUpload from "./file-upload";
-import { Accordion, AccordionContent, AccordionTrigger } from "./ui/accordion";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { ChevronUp } from "lucide-react";

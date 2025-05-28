@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { SettingsBar } from "./settings-bar"
 import { CategoryScores } from "@/components/category-scores"
 import type { InsuranceSettings, CategoryWithSubcategories } from "@/types/insurance"
@@ -34,7 +34,7 @@ export default function PolicyAnalysis() {
     crumbs.map((c) => c.name).join(" > ")
 
   // Helper to fetch situations for a query
-  const fetchSituations = async (query: string) => {
+  const fetchSituations = useCallback(async (query: string) => {
     if (!policy) return
     setSituationLoading(true)
     try {
@@ -49,7 +49,7 @@ export default function PolicyAnalysis() {
     } finally {
       setSituationLoading(false)
     }
-  }
+  }, [policy, settings.isInNetwork])
 
   // Load categories and situations on mount and when settings or policy changes
   useEffect(() => {
@@ -67,7 +67,7 @@ export default function PolicyAnalysis() {
       })
       .finally(() => setLoading(false))
     fetchSituations(query)
-  }, [settings, policy])
+  }, [settings, policy, fetchSituations])
 
   const handleSettingsChange = (newSettings: Partial<InsuranceSettings>) => {
     setSettings((prev: InsuranceSettings) => ({ ...prev, ...newSettings }))
@@ -194,13 +194,9 @@ export default function PolicyAnalysis() {
           ) : (
             <CategoryScores
               categories={categories}
-              isInNetwork={settings.isInNetwork}
               onCategorySelect={handleCategorySelect}
               onSearch={handleServerSearch}
               loading={loading}
-              situationSuggestions={situationSuggestions}
-              situationLoading={situationLoading}
-              onSuggestionClick={handleSuggestionClick}
             />
           )}
         </div>

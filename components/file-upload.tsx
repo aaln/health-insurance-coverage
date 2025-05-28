@@ -8,7 +8,6 @@ import { FileIcon, UploadIcon, XIcon, Loader2 } from "lucide-react";
 import { parseSBCFile } from "@/actions/parse";
 import { toast } from "sonner";
 import { ParsedPolicy, usePolicy } from "./policy-context";
-import { useComposerRuntime } from "@assistant-ui/react";
 
 interface FileUploadProps {
   acceptedFileTypes?: string;
@@ -20,7 +19,6 @@ export default function FileUpload({
   maxSizeMB = 10,
 }: FileUploadProps) {
   const { setPolicy } = usePolicy();
-  const composerRuntime = useComposerRuntime();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);

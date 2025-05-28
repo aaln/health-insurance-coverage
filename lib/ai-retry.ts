@@ -1,18 +1,19 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import { groq } from '@ai-sdk/groq';
-import { generateObject } from "ai";
+import { CoreMessage, generateObject, LanguageModelV1 } from "ai";
 import { toast } from "sonner";
+import z from 'zod';
 
 interface AIRetryOptions {
   maxAttempts?: number;
   delayMs?: number;
   context?: string;
   temperatures?: number[]; // Array of temperatures to try
-  backupModel?: any; // Backup model to try if all temperature attempts fail
+  backupModel?: unknown; // Backup model to try if all temperature attempts fail
 }
 
 export async function withAIRetry<T>(
-  fn: (temperature?: number, model?: any) => Promise<T>,
+  fn: (temperature?: number, model?: unknown) => Promise<T>,
   options: AIRetryOptions = {}
 ): Promise<T> {
   const {
@@ -23,7 +24,7 @@ export async function withAIRetry<T>(
     backupModel = groq('meta-llama/llama-4-scout-17b-16e-instruct'), // Default backup model
   } = options;
 
-  let lastError: any;
+  let lastError: unknown;
   let attemptCount = 0;
 
   // Try each temperature in sequence
@@ -33,7 +34,7 @@ export async function withAIRetry<T>(
     try {
       attemptCount++;
       return await fn(temperature);
-    } catch (error: any) {
+    } catch (error) {
       lastError = error;
       
       if (attemptCount === maxAttempts) {
@@ -41,7 +42,7 @@ export async function withAIRetry<T>(
         if (backupModel) {
           try {
             return await fn(0.5, backupModel); // Use conservative temperature with backup
-          } catch (backupError: any) {
+          } catch (backupError) {
             lastError = backupError;
           }
         }
@@ -58,12 +59,12 @@ export async function withAIRetry<T>(
   }
 
   // If we've exhausted all retries and backup, throw the final error
-  const errorMessage = `${context} failed after ${attemptCount} attempts${backupModel ? ' and backup model' : ''}: ${lastError?.message || 'Unknown error'}`;
+  const errorMessage = `${context} failed after ${attemptCount} attempts${backupModel ? ' and backup model' : ''}: ${(lastError as Error)?.message || 'Unknown error'}`;
   throw new Error(errorMessage);
 }
 
 
-export const generateObjectWithAIRetry = async ({
+export const generateObjectWithAIRetry = async <T = unknown>({
   model = anthropic("claude-sonnet-4-20250514"),
   prompt,
   system,
@@ -71,25 +72,24 @@ export const generateObjectWithAIRetry = async ({
   schema,
   backupModel = anthropic("claude-sonnet-4-20250514"),
 }: {
-  model: any;
+  model: unknown;
   prompt?: string;
   system?: string;
-  messages?: any[];
-  schema: any;
-  backupModel?: any;
-}): Promise<any> => {
-  return withAIRetry(
+  messages?: unknown[];
+  schema: unknown;
+  backupModel?: unknown;
+}): Promise<T> => {
+  return withAIRetry<T>(
     async (temperature = 0.5, fallbackModel?) => {
       const result = await generateObject({
-        model: fallbackModel || model,
+        model: fallbackModel as LanguageModelV1 || model,
         prompt,
         system,
-        messages,
-        schema,
+        messages: messages as CoreMessage[],
+        schema: schema as z.ZodSchema,
         temperature,
-        output: "object"
       });
-      return result.object;
+      return (result as { object: T }).object;
     },
     {
       temperatures: [0.5, 0.7, 0.9, 0.3],

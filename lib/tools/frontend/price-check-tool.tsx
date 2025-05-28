@@ -13,6 +13,7 @@ import {
     ToolCallContentPartProps,
     useAssistantTool,
   } from "@assistant-ui/react";
+import { checkPrice } from "@/actions/check-price";
   // TODO: Implement and create '@/actions/check-price' server action
   
   // Schema for the tool arguments
@@ -78,8 +79,7 @@ import {
       description: "Check the price of a medical condition, treatment, or medication.",
       execute: async (args) => {
         try {
-          // @ts-expect-error: checkPrice will be implemented
-          const res = await (await import("@/actions/check-price")).checkPrice(args);
+          const res = await checkPrice(args as z.infer<typeof priceCheckSchema>);
           toast.success("Price check complete");
           return res;
         } catch (e: unknown) {

@@ -2,21 +2,16 @@
 
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
-import { Thread } from "@/components/assistant-ui/thread";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { Separator } from "@/components/ui/separator";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { PolicyProvider } from "@/components/policy-context";
 import { PolicySelector } from "@/components/policy-selector";
-import { AssistantModal } from "@/components/assistant-ui/assistant-modal";
-import FileUpload from "@/components/file-upload";
+import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { HeartPlus } from "lucide-react";
 import { PolicyOverview } from "@/components/policy-overview";
 import PolicyAnalysis from "@/components/policy-analysis";
-import { SettingsBar } from "@/components/settings-bar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { AssistantModal } from "@/components/assistant-ui/assistant-modal";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export const Assistant = () => {
   const runtime = useChatRuntime({

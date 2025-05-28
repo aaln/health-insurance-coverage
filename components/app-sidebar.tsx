@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Github, HeartPlus, MessagesSquare } from "lucide-react"
+import { Github, HeartPlus } from "lucide-react"
 import Link from "next/link"
 import {
   Sidebar,
