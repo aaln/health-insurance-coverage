@@ -39,6 +39,17 @@ export const Assistant = () => {
               </div>
               </Link>
               <Separator orientation="vertical" className="mr-2 h-4" />
+              <Link
+                className="flex items-center gap-2"
+                href="https://github.com/aaln/health-insurance-coverage"
+                target="_blank"
+              >
+                <div className="flex flex-col justify-center leading-tight">
+                  <span className="font-semibold">GitHub</span>
+                  <span className="text-xs text-muted-foreground">View Open Source Repo</span>
+                </div>
+              </Link>
+              
               {/* <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
