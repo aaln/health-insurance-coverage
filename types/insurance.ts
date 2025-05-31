@@ -9,6 +9,12 @@ export interface InsuranceSettings {
     name: string
     score: "A" | "B" | "C" | "D" | "F"
     description: string
+    out_of_pocket_costs: {
+      situation: string
+      cost: number
+      cost_frequency: string
+      extra_details?: string
+    }[]
   }
   
   export interface CategoryWithSubcategories extends HealthCategory {

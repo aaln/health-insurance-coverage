@@ -1,12 +1,12 @@
 "use server"
 
-import { generateText } from "ai"
-import { openai } from "@ai-sdk/openai"
-import type { CategoryWithSubcategories } from "@/types/insurance"
-import { groq } from "@ai-sdk/groq"
-import { z } from "zod"
 import { ParsedPolicy } from "@/components/policy-context"
 import { generateObjectWithAIRetry } from "@/lib/ai-retry"
+import type { CategoryWithSubcategories } from "@/types/insurance"
+import { groq } from "@ai-sdk/groq"
+import { openai } from "@ai-sdk/openai"
+import { generateText } from "ai"
+import { z } from "zod"
 
 export async function generateCategories(
   query: string,
@@ -68,10 +68,15 @@ export async function generateCategories(
           name: z.string().describe("The name of the category. Avoid including the words 'in-network' or 'out-of-network' in the name."),
           score: z.enum(["A", "B", "C", "D", "F", 'N/A']),
           description: z.string(),
+          out_of_pocket_costs: z.array(z.object({
+            situation: z.string(),
+            cost: z.number().describe("approximate cost the insured will have to pay in the situation that belongs to the category"),
+            cost_frequency: z.string().describe("how often the cost occurs, per visit, per procedure, per refill, etc."),
+            extra_details: z.string().describe("extra details about the cost such as up to 5 times, up to x $, etc. Only add extra details, better to leave it blank than to add generic details.").optional(),
+          }))
         })),
       }),
     }) as { categories: CategoryWithSubcategories[], formatted_query: string }
-
     return result;
   } catch (error) {
     console.error("Error generating categories:", error)

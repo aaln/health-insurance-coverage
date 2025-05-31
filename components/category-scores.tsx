@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
-import type { HealthCategory } from "@/types/insurance"
+import { Card, CardContent } from "@/components/ui/card"
 import { getScoreColor } from "@/lib/utils"
+import type { HealthCategory } from "@/types/insurance"
+import { InfoIcon, Search } from "lucide-react"
+import { useState } from "react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 
 interface CategoryScoresProps {
   categories: HealthCategory[]
@@ -70,6 +71,33 @@ export function CategoryScores({
                     {category.name}
                   </h3>
                   <p className="text-sm text-gray-500 mt-1">{category.description}</p>
+                  
+                  {category.out_of_pocket_costs.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-sm font-medium text-gray-700">Out of pocket costs:</p>
+                      <ul className="mt-1 space-y-1">
+                        {category.out_of_pocket_costs.map((cost, i) => (
+                          <li key={i} className="text-sm text-gray-600 flex justify-between">
+                            <span>{cost.situation}</span>
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium">${cost.cost}</span>
+                              <span className="text-xs text-gray-500">({cost.cost_frequency})</span>
+                              {cost.extra_details && (
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <InfoIcon className="h-3 w-3 text-gray-400" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    {cost.extra_details}
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white ${getScoreColor(
