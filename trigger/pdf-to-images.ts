@@ -1,7 +1,7 @@
 import { logger, task } from "@trigger.dev/sdk/v3";
+import { put } from '@vercel/blob';
 import { execSync } from "child_process";
 import fs from "fs";
-import { put } from '@vercel/blob';
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 

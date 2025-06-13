@@ -8,7 +8,7 @@
   <a href="#-features">Features</a> ·
   <a href="#-tech-stack">Tech Stack</a> ·
   <a href="#-good-use-cases">Good Use Cases</a> ·
-  <a href="#-features-to-be-added">Features To Be Added</a> ·
+  <a href="#-development">Development</a> ·
   <a href="#-feature-requests">Feature Requests</a> ·
   <a href="#-contributing">Contributing</a> ·
   <a href="#-getting-started">Getting Started</a>
@@ -49,6 +49,56 @@ Whether you're a consumer, advocate, or developer, this project aims to make hea
 - Advocacy for better healthcare access
 - Research on insurance plan features and gaps
 
+## 🛠️ Development
+
+This project includes comprehensive development guidelines and automation tools to ensure code quality and consistency.
+
+### Cursor IDE Integration
+
+This project includes comprehensive [Cursor IDE](https://cursor.sh/) rules for enhanced development experience:
+
+#### Main Rules
+- **[Global Rules](.cursor/rules/index.mdc)** - Core development standards and architecture patterns
+- **[Server Actions](.cursor/rules/server-actions.mdc)** - Guidelines for Next.js server actions
+- **[Self-Updating Rules](.cursor/rules/self-updating.mdc)** - Dynamic rule system that adapts to project changes
+
+#### Background Agents
+- **[Build Agent](.cursor/rules/agents/build.mdc)** - Automated build, linting, and formatting with `__NEXT_TEST_MODE="1"`
+
+### Architecture Overview
+
+The project follows a service-layer architecture pattern:
+
+```
+├── lib/services/           # Business logic and AI operations
+├── components/             # React components with error boundaries
+├── hooks/                  # Custom hooks for state management
+├── types/schemas.ts        # Consolidated Zod schemas
+├── actions/               # Server actions (thin wrappers)
+└── .cursor/rules/         # Development guidelines and automation
+```
+
+### Key Development Principles
+
+- **Service Layer First**: All AI operations go through `lib/services/`
+- **Type Safety**: Zod schemas for all validation and type generation
+- **Error Boundaries**: Graceful degradation with `AIErrorBoundary` components
+- **Custom Hooks**: Single responsibility hooks for business logic
+- **Named Exports**: Project preference over default exports
+
+### Development Commands
+
+```bash
+bun run dev          # Development server
+bun run build        # Production build
+bun run lint         # ESLint checks
+bun run fetch:plans  # Fetch sample data
+```
+
+### Code Quality
+
+The project enforces strict TypeScript, comprehensive error handling, and uses multi-model AI fallback strategies. All AI responses are validated with Zod schemas, and the service layer provides caching and retry logic.
+
 ## 🙋‍♂️ Feature Requests
 
 To request a new feature or suggest improvements, please [open an issue](https://github.com/YOUR_GITHUB_REPO/issues/new) on GitHub. All feedback is welcome!
@@ -87,7 +137,29 @@ ANTHROPIC_API_KEY=
 UNSTRUCTURED_API_KEY=
 BLOB_READ_WRITE_TOKEN=
 TRIGGER_SECRET_KEY=
+GOV_MARKETPLACE_API_KEY=
+GOV_FINDER_API_KEY=
 ```
+
+#### Obtaining CMS.gov API Keys
+
+Note: the discovery section of the site won't work if these keys aren't available.
+
+To get API keys for the CMS Healthcare APIs:
+
+1. Visit [CMS Developer Portal](https://developer.cms.gov)
+2. Click "Sign Up" to create a CMS Enterprise Portal account
+3. For Marketplace API (GOV_MARKETPLACE_API_KEY):
+   - Navigate to "Marketplace API" section
+   - Click "Request Access"
+   - Fill out the application form 
+   - Submit and await approval
+
+4. For Finder API (GOV_FINDER_API_KEY):
+   - Navigate to "Finder API" section
+   - Click "Request Access"
+   - Complete similar application process
+   - Specify intended usage for finding private health plans
 
 ### 4. Run the development server
 
@@ -102,3 +174,5 @@ Visit [http://localhost:3000](http://localhost:3000) to get started.
 ---
 
 **Health Insurance Coverage Analyzer** is built for the community, by the community. We hope you'll join us in making health insurance easier to understand for everyone!
+
+

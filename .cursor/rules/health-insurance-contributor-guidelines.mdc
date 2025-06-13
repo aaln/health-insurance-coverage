@@ -1,0 +1,339 @@
+# Health Insurance Coverage Analyzer - Contributor Guidelines
+
+## Project Overview
+You are working on a Next.js 15 healthcare application that analyzes health insurance coverage using AI. The app parses Summary of Benefits and Coverage (SBC) PDFs and provides intelligent analysis through AI-powered categorization and chat interfaces.
+
+**Technology Stack:**
+- Next.js 15 with App Router
+- TypeScript with strict mode
+- Tailwind CSS + shadcn/ui components  
+- Multi-provider AI system (Anthropic Claude, Groq)
+- @assistant-ui/react for chat interfaces
+- Zod schemas for runtime validation
+- Bun runtime (preferred) or Node.js 20+
+
+**Team Size:** Small (3-5 developers)
+
+**Key Priorities:**
+1. **Healthcare Data Accuracy** - Insurance information must be precise and reliable
+2. **Type Safety** - Comprehensive TypeScript coverage with Zod validation  
+3. **AI Reliability** - Robust error handling and fallback mechanisms
+4. **User Experience** - Clear, intuitive interfaces for complex healthcare data
+5. **Performance** - Optimized AI operations with caching and loading states
+6. **Security** - Proper handling of sensitive healthcare information
+
+## Architecture Patterns
+
+### Service Layer Pattern (REQUIRED)
+- ALL AI operations must go through `lib/services/insurance-ai-service.ts`
+- Use centralized error handling with custom error types
+- Implement caching for expensive AI operations
+- Follow established patterns for new services
+
+### Custom Hooks Pattern (REQUIRED)
+- Business logic encapsulated in custom hooks (`hooks/`)
+- Each hook handles its own error states and recovery
+- Single responsibility principle - one domain per hook
+- Follow patterns in `use-category-analysis.ts`, `use-insurance-settings.ts`
+
+### Schema-First Validation (REQUIRED)
+- All data structures defined in `types/schemas.ts`
+- Use Zod schemas for runtime validation of AI responses
+- Import types from schema file for consistency
+- Validate all external data (API responses, user input, AI output)
+
+### Error Boundary Strategy (REQUIRED)
+- Wrap AI components with `AIErrorBoundary`
+- Use `GeneralErrorBoundary` for React errors
+- Provide graceful degradation for AI failures
+- Implement user-friendly error messages
+
+## TypeScript Best Practices
+
+### Type Definitions
+```typescript
+// ✅ GOOD: Schema-first with validation
+export const HealthCategorySchema = z.object({
+  id: z.number(),
+  name: z.string().min(1, "Category name is required"),
+  score: z.enum(["A", "B", "C", "D", "F", "N/A"]),
+  description: z.string().min(1, "Description is required"),
+  out_of_pocket_costs: z.array(OutOfPocketCostSchema),
+});
+
+export type HealthCategory = z.infer<typeof HealthCategorySchema>;
+
+// ❌ BAD: Loose typing without validation
+interface Category {
+  id: any;
+  name?: string;
+  score: string;
+}
+```
+
+### AI Service Integration
+```typescript
+// ✅ GOOD: Use service layer
+const analysis = await InsuranceAIService.generateCategories({
+  query: userQuery,
+  context: settings,
+  policy: parsedPolicy,
+});
+
+// ❌ BAD: Direct AI calls in components
+const response = await anthropic("claude-sonnet-4").generateObject({
+  schema: someSchema,
+  prompt: "analyze this...",
+});
+```
+
+### Healthcare Data Handling
+```typescript
+// ✅ GOOD: Healthcare-specific validation and context
+const calculateOutOfPocketCost = (
+  service: MedicalServiceType,
+  settings: InsuranceSettings,
+  policy: ParsedPolicy
+): OutOfPocketCost => {
+  // Validate inputs with healthcare-specific schemas
+  MedicalServiceTypeSchema.parse(service);
+  InsuranceSettingsSchema.parse(settings);
+  
+  return {
+    situation: service,
+    cost: calculateActualCost(service, settings, policy),
+    cost_frequency: "per visit",
+    extra_details: getServiceLimitations(service, policy),
+  };
+};
+
+// ❌ BAD: Generic calculation without healthcare context
+const getCost = (service: string, amount: number) => amount * 0.8;
+```
+
+### Component Architecture
+```typescript
+// ✅ GOOD: Separation of concerns with hooks
+export function PolicyAnalysis() {
+  const { categories, loading, error } = useCategoryAnalysis({
+    policy,
+    settings,
+    autoLoad: true,
+  });
+
+  if (error) return <AIErrorBoundary error={error} />;
+  if (loading) return <CategoryLoadingSkeleton />;
+  
+  return <CategoryDisplay categories={categories} />;
+}
+
+// ❌ BAD: Business logic mixed with UI
+export function PolicyAnalysis() {
+  const [categories, setCategories] = useState([]);
+  
+  useEffect(() => {
+    fetch('/api/generate-categories').then(/* complex logic */);
+  }, []);
+  
+  return <div>{/* complex UI logic */}</div>;
+}
+```
+
+## Healthcare-Specific Guidelines
+
+### Medical Data Validation
+- Always validate medical service types against `MEDICAL_SERVICE_TYPES`
+- Use proper medical terminology in error messages
+- Implement safeguards for cost calculations
+- Validate insurance plan data structure thoroughly
+
+### AI Prompt Engineering for Healthcare
+- Include healthcare-specific context in AI prompts
+- Provide policy details for accurate analysis
+- Specify output format requirements clearly
+- Handle edge cases in medical scenarios
+
+### User Experience for Healthcare
+- Provide clear explanations for insurance terminology
+- Use progressive disclosure for complex information
+- Include loading states for AI operations (healthcare analysis takes time)
+- Offer helpful error recovery suggestions
+
+## Security Requirements
+
+### Healthcare Data Privacy
+- Never log sensitive medical information
+- Implement proper data sanitization
+- Use secure storage for temporary policy data
+- Follow healthcare privacy best practices
+
+### API Security
+- Validate all inputs with Zod schemas
+- Sanitize user queries before AI processing
+- Implement rate limiting for AI operations
+- Use environment variables for sensitive configuration
+
+## Performance Patterns
+
+### AI Operations
+- Cache AI responses with appropriate TTL
+- Use loading skeletons for better perceived performance
+- Implement request deduplication for repeated queries
+- Monitor API rate limits and implement backoff
+
+### Healthcare Data Processing
+- Optimize large policy document parsing
+- Use pagination for category lists
+- Implement virtual scrolling for large datasets
+- Lazy load medical scenario calculations
+
+## Error Handling Patterns
+
+### Service Layer Errors
+```typescript
+export class InsuranceAIError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public retryable: boolean = false
+  ) {
+    super(message);
+    this.name = "InsuranceAIError";
+  }
+}
+
+// Component error handling
+try {
+  const result = await insuranceService.analyzePolicy(policy);
+  return AnalysisSuccessSchema.parse(result);
+} catch (error) {
+  if (error instanceof InsuranceAIError) {
+    toast.error(`Analysis failed: ${error.message}`);
+    return null;
+  }
+  throw error; // Re-throw unexpected errors
+}
+```
+
+### Progressive Loading
+```typescript
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState<Error | null>(null);
+
+const analyzePolicy = useCallback(async () => {
+  setLoading(true);
+  setError(null);
+  
+  try {
+    const analysis = await insuranceService.generateCategories({
+      query,
+      context: settings,
+      policy,
+    });
+    
+    // Always validate AI responses
+    const validated = GenerateCategoriesOutputSchema.parse(analysis);
+    setCategories(validated.categories);
+  } catch (err) {
+    setError(err instanceof Error ? err : new Error('Analysis failed'));
+  } finally {
+    setLoading(false);
+  }
+}, [query, settings, policy]);
+```
+
+## File Organization
+
+### Required Structure
+```
+app/                 # Next.js App Router pages
+components/          # React components
+├── ui/             # shadcn/ui base components
+├── assistant-ui/   # Chat interface components  
+├── error-boundaries/ # Error boundary components
+└── policy-*.tsx    # Policy-specific components
+hooks/              # Custom hooks for business logic
+lib/services/       # Business logic services (REQUIRED)
+types/schemas.ts    # All Zod schemas and types (REQUIRED)
+```
+
+### Naming Conventions
+- Files: kebab-case (`policy-analysis.tsx`)
+- Components: PascalCase (`PolicyAnalysis`)
+- Functions/variables: camelCase
+- Always use descriptive names indicating purpose
+
+## Development Workflow
+
+### Before Contributing
+1. Read `CLAUDE.md` for project architecture understanding
+2. Familiarize with `types/schemas.ts` for data structures
+3. Test AI integration with your changes
+4. Run TypeScript compiler with strict checks
+
+### Code Quality Checklist
+```bash
+bun run lint        # ESLint checks
+bun run build       # TypeScript compilation  
+bun run dev         # Test in development
+```
+
+### Testing Healthcare Scenarios
+- Test with various SBC PDF formats
+- Validate AI responses with edge cases
+- Ensure responsive design across devices
+- Test error handling with network failures
+
+## Contributing Checklist
+
+Before submitting code:
+- [ ] Types defined in `types/schemas.ts` with Zod validation
+- [ ] AI operations use service layer pattern (`lib/services/`)
+- [ ] Custom hooks used for business logic
+- [ ] Error boundaries wrap AI components
+- [ ] Loading states implemented for async operations
+- [ ] Healthcare data properly validated
+- [ ] Security considerations addressed
+- [ ] TypeScript strict mode compliance
+- [ ] Responsive design tested
+- [ ] Performance impact considered
+
+## Common Anti-Patterns to Avoid
+
+### ❌ Don't Do This
+- Direct AI API calls from components
+- Business logic in components
+- Types defined outside `types/schemas.ts`
+- Unhandled AI operation failures
+- Missing validation for healthcare data
+- Generic error messages for medical scenarios
+- Blocking UI during long AI operations
+
+### ✅ Do This Instead
+- Use service layer for all AI operations
+- Encapsulate business logic in custom hooks
+- Define all types in `types/schemas.ts`
+- Wrap AI components with error boundaries
+- Validate all healthcare data with Zod schemas
+- Provide context-specific error messages
+- Show loading states and progress indicators
+
+## Environment Variables
+```
+GROQ_API_KEY=           # For Groq AI models
+ANTHROPIC_API_KEY=      # For Claude models
+UNSTRUCTURED_API_KEY=   # For PDF parsing
+BLOB_READ_WRITE_TOKEN=  # For file storage
+TRIGGER_SECRET_KEY=     # For background jobs
+```
+
+## Questions & Guidelines
+
+When in doubt:
+1. Follow existing patterns in the codebase
+2. Prioritize healthcare data accuracy above all else
+3. Use the service layer for AI operations
+4. Implement comprehensive error handling
+5. Add thorough type validation with Zod
+
+**Remember:** This application handles sensitive healthcare information. Accuracy, security, and user experience are paramount. Every change should be evaluated through the lens of healthcare data reliability and user safety.

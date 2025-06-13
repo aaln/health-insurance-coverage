@@ -1,10 +1,9 @@
 "use client";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import React, { useState } from "react";
-import { usePolicy } from "./policy-context";
 import FileUpload from "./file-upload";
+import { usePolicy } from "./policy-context";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { ChevronDown } from "lucide-react";
-import { ChevronUp } from "lucide-react";
 
 export const PolicyOverview: React.FC = () => {
   const { policy } = usePolicy();
@@ -31,7 +30,12 @@ export const PolicyOverview: React.FC = () => {
           <div className="text-sm flex flex-col md:flex-row gap-2 w-full bg-gray-50 rounded-lg p-3 border items-center justify-between">
             <div className="flex-1 min-w-[100px]">
               <div className="text-xs uppercase mb-1">Coverage Period</div>
-              <div>{coverage_period.start_date} - {coverage_period.end_date}</div>
+              <div>
+                {coverage_period.end_date === '<UNKNOWN>' 
+                  ? coverage_period.start_date 
+                  : `${coverage_period.start_date} - ${coverage_period.end_date}`
+                }
+              </div>
             </div>
             <div className="flex-1 min-w-[100px]">
               <div className="text-xs uppercase mb-1">Coverage For</div>

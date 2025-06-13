@@ -1,0 +1,301 @@
+---
+description: Server Actions best practices for Health Insurance Coverage Analyzer
+globs:
+  - "actions/**/*.ts"
+alwaysApply: true
+---
+
+# Server Actions Guidelines
+
+## Overview
+Server actions in this project serve as thin wrappers around the service layer, providing server-side interfaces for client components. Based on existing patterns in `/actions/`, follow these established conventions.
+
+## Core Principles
+
+### Service Layer Integration
+- **ALWAYS** delegate business logic to `lib/services/` instead of implementing in actions
+- **USE** server actions as thin bridges between client and service layer
+- **WRAP** service calls with proper error handling and logging
+- **RETURN** service results directly or provide graceful fallbacks
+
+### Input Validation
+- **ALWAYS** validate inputs with Zod schemas at the action boundary
+- **USE** `safeParse()` for validation with proper error handling
+- **DEFINE** schemas inline or import from `types/schemas.ts`
+- **THROW** descriptive errors for invalid inputs
+
+## Established Patterns
+
+### Action Structure Template
+Based on `actions/insurance-analyzer.ts`:
+
+```typescript
+"use server"
+
+import { ServiceClass } from "@/lib/services"
+import type { InputType, OutputType } from "@/types/schemas"
+
+/**
+ * Action description with JSDoc
+ * 
+ * @param param1 Description
+ * @param param2 Description
+ * @returns Promise resolving to result
+ * 
+ * @example
+ * ```typescript
+ * const result = await myAction(input1, input2);
+ * ```
+ */
+export async function myAction(
+  param1: InputType,
+  param2: InputType
+): Promise<OutputType> {
+  try {
+    console.log("Action started:", { param1: sanitizedParam1 });
+    
+    // Delegate to service layer
+    const result = await ServiceClass.methodName(param1, param2);
+    
+    console.log("Action completed successfully");
+    return result;
+  } catch (error) {
+    console.error("Error in myAction:", error);
+    
+    // Return fallback or re-throw
+    return fallbackResult;
+  }
+}
+```
+
+### AI-Related Actions Pattern
+Based on `actions/insurance-analyzer.ts`:
+
+```typescript
+export async function generateCategories(
+  query: string,
+  context: InsuranceSettings,
+  policy: ParsedPolicy
+): Promise<{ categories: CategoryWithSubcategories[], formatted_query: string }> {
+  // Prepare structured input
+  const input: GenerateCategoriesInput = {
+    query,
+    context,
+    policy,
+  };
+
+  try {
+    console.log("Generating categories via service layer:", { 
+      query, 
+      context: context.isInNetwork ? "in-network" : "out-of-network" 
+    });
+    
+    // Service layer call
+    const result = await InsuranceAIService.generateCategories(input);
+    
+    console.log(`Successfully generated ${result.categories.length} categories`);
+    return result;
+  } catch (error) {
+    console.error("Error in generateCategories server action:", error);
+    
+    // Graceful fallback
+    return { 
+      categories: [], 
+      formatted_query: query || "general coverage" 
+    };
+  }
+}
+```
+
+### File Processing Actions Pattern
+Based on `actions/parse.ts`:
+
+```typescript
+export const parseSBCFile = async (formData: FormData) => {
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
+    throw new Error("No file uploaded");
+  }
+
+  // File upload and processing
+  const { url: file_url } = await put(file.name, file, {
+    access: 'public',
+    addRandomSuffix: true,
+  });
+
+  // Process with service layer or utilities
+  const [pages_text, { output: image_urls }] = await Promise.all([
+    processFileWithUnstructured(file_buffer, file_name),
+    tasks.triggerAndPoll("pdf-to-images", { file_url })
+  ]);
+
+  // Return structured result
+  return {
+    file_url,
+    image_urls,
+    // ... other processed data
+  };
+}
+```
+
+### Simple Tool Actions Pattern
+Based on `actions/check-price.ts`:
+
+```typescript
+export const checkPrice = async (args: z.infer<typeof priceCheckSchema>): Promise<{ results: PriceCheckResult[] }> => {
+  // Input validation
+  const parsed = priceCheckSchema.safeParse(args);
+  if (!parsed.success) {
+    throw new Error("Invalid arguments for price check");
+  }
+  const { query, isInNetwork, deductibleSpent, outOfPocketSpent } = parsed.data;
+
+  // Define response schema
+  const schema = z.object({
+    results: z.array(
+      z.object({
+        name: z.string(),
+        estimatedCost: z.number(),
+        details: z.string(),
+      })
+    ),
+  });
+
+  // AI generation with retry logic
+  const result = await generateObjectWithAIRetry({
+    model: groq("compound-beta"),
+    system: `System prompt...`,
+    messages: [/* messages */],
+    schema,
+  });
+
+  return result as unknown as { results: PriceCheckResult[] };
+};
+```
+
+## Required Patterns
+
+### Error Handling
+- **ALWAYS** wrap service calls in try-catch blocks
+- **LOG** errors with contextual information
+- **PROVIDE** meaningful fallback responses
+- **AVOID** exposing internal error details to client
+
+```typescript
+try {
+  const result = await ServiceClass.method(input);
+  return result;
+} catch (error) {
+  console.error("Error in actionName:", error);
+  
+  // Return appropriate fallback
+  return fallbackResponse;
+}
+```
+
+### Logging Standards
+- **LOG** action start with sanitized parameters
+- **LOG** successful completion with relevant metrics
+- **LOG** errors with full context
+- **AVOID** logging sensitive data
+
+```typescript
+console.log("Action started:", { 
+  query, 
+  context: context.isInNetwork ? "in-network" : "out-of-network" 
+});
+
+console.log(`Successfully completed with ${result.items.length} items`);
+```
+
+### Input Sanitization
+- **SANITIZE** sensitive data in logs
+- **TRUNCATE** long strings for logging
+- **MASK** personal information
+- **VALIDATE** all inputs at action boundary
+
+```typescript
+console.log("Analyzing situation:", { 
+  situation: situation.substring(0, 50) + "...", // Truncate
+  isInNetwork: context.isInNetwork,
+  financialProgress: `${context.deductibleSpent}/${context.deductibleLimit}`
+});
+```
+
+## AI Integration Patterns
+
+### Multi-Model Strategy
+- **USE** established model fallback patterns from existing actions
+- **IMPLEMENT** retry logic with `generateObjectWithAIRetry`
+- **VALIDATE** AI responses with Zod schemas
+- **PROVIDE** fallback responses for AI failures
+
+### Schema Definitions
+- **DEFINE** response schemas inline for simple actions
+- **IMPORT** from `types/schemas.ts` for complex types
+- **USE** union types with enums for known values
+- **INCLUDE** detailed descriptions for schema fields
+
+## File Upload Actions
+
+### File Validation
+- **VALIDATE** file type and existence
+- **CHECK** file size limits
+- **HANDLE** file upload to blob storage
+- **PROCESS** files with appropriate utilities
+
+### Parallel Processing
+- **USE** `Promise.all()` for independent operations
+- **PROCESS** multiple pages or operations concurrently
+- **COMBINE** results appropriately
+- **HANDLE** partial failures gracefully
+
+## Deprecation Patterns
+
+### Legacy Action Migration
+Based on `actions/insurance-analyzer.ts` deprecation notes:
+
+```typescript
+/**
+ * @deprecated Consider using the InsuranceAIService directly in hooks instead
+ * 
+ * REFACTOR NOTE: This file now primarily serves as a bridge between the client
+ * and the new service layer. Most logic has been moved to the service layer
+ * for better organization and testability.
+ */
+```
+
+### Migration Strategy
+- **KEEP** existing actions for backward compatibility
+- **DELEGATE** logic to service layer
+- **DOCUMENT** deprecation and migration path
+- **PROVIDE** examples of new patterns
+
+## Common Anti-Patterns to Avoid
+
+### Business Logic in Actions
+- **DON'T** implement complex business logic in server actions
+- **DON'T** duplicate logic between actions and services
+- **DON'T** make direct API calls without service layer
+
+### Error Handling Issues
+- **DON'T** expose internal errors to client
+- **DON'T** fail silently without logging
+- **DON'T** return undefined or null without handling
+
+### Input/Output Issues
+- **DON'T** skip input validation
+- **DON'T** return unvalidated AI responses
+- **DON'T** log sensitive user data
+
+## Testing Considerations
+- **TEST** with various input scenarios
+- **MOCK** service layer dependencies
+- **VERIFY** error handling paths
+- **VALIDATE** output schemas
+
+## Performance Guidelines
+- **USE** parallel processing where possible
+- **CACHE** expensive operations in service layer
+- **STREAM** large responses when appropriate
+- **MONITOR** action execution times

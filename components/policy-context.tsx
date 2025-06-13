@@ -1,5 +1,6 @@
+"use client";
 import { useComposerRuntime } from "@assistant-ui/react";
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 export interface PlanSummary {
   plan_name: string;
@@ -93,10 +94,11 @@ export const PolicyProvider = ({ children }: { children: ReactNode }) => {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (stored) {
         try {
-          setPolicyState(JSON.parse(stored));
-          console.log("setting policy run config", policy)
+          const parsedPolicy = JSON.parse(stored);
+          setPolicyState(parsedPolicy);
+          console.log("setting policy run config", parsedPolicy)
           const cleanedPolicy = {
-            ...policy,
+            ...parsedPolicy,
             image_urls: [],
           }
           composerRuntime.setRunConfig({
@@ -108,7 +110,7 @@ export const PolicyProvider = ({ children }: { children: ReactNode }) => {
         } catch {}
       }
     }
-  }, []);
+  }, [composerRuntime]);
 
   // Save to localStorage on change
   useEffect(() => {

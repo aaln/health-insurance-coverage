@@ -1,29 +1,44 @@
-export interface InsuranceSettings {
-    deductibleSpent: number
-    outOfPocketSpent: number
-    isInNetwork: boolean
-  }
-  
-  export interface HealthCategory {
-    id: number
-    name: string
-    score: "A" | "B" | "C" | "D" | "F"
-    description: string
-    out_of_pocket_costs: {
-      situation: string
-      cost: number
-      cost_frequency: string
-      extra_details?: string
-    }[]
-  }
-  
-  export interface CategoryWithSubcategories extends HealthCategory {
-    subcategories?: CategoryWithSubcategories[]
-  }
-  
-  export interface ChatMessage {
-    id: string
-    role: "user" | "system"
-    content: string
-  }
+/**
+ * Legacy type definitions - DEPRECATED
+ * 
+ * These types are being migrated to the new consolidated schema system.
+ * Please import from './schemas' instead for new code.
+ * 
+ * @deprecated Use types from './schemas.ts' instead
+ */
+
+// Re-export types from the new schema system for backward compatibility
+export type {
+  InsuranceSettings,
+  HealthCategory,
+  CategoryWithSubcategories,
+  ChatMessage,
+  OutOfPocketCost,
+  PlanSummary,
+  ImportantQuestions,
+  ServiceYouMayNeed,
+  ExcludedAndOtherCoveredServices,
+  ParsedPolicy,
+  PriceCheck,
+  PriceCheckResult,
+  MedicalServiceType,
+} from './schemas';
+
+// Re-export schemas for validation
+export {
+  InsuranceSettingsSchema,
+  HealthCategorySchema,
+  CategoryWithSubcategoriesSchema,
+  ChatMessageSchema,
+  OutOfPocketCostSchema,
+  PlanSummarySchema,
+  ImportantQuestionsSchema,
+  ServiceYouMayNeedSchema,
+  ExcludedAndOtherCoveredServicesSchema,
+  ParsedPolicySchema,
+  PriceCheckSchema,
+  PriceCheckResultSchema,
+  MedicalServiceTypeSchema,
+  MEDICAL_SERVICE_TYPES,
+} from './schemas';
   

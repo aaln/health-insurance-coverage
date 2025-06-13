@@ -1,0 +1,308 @@
+# Health Insurance Coverage Analyzer - Cursor Rules
+
+## Project Overview
+This is a Next.js 15 application that helps users analyze health insurance coverage using AI. It parses Summary of Benefits and Coverage (SBC) PDFs and provides interactive analysis through AI-powered categorization and chat.
+
+## Core Technologies & Framework Rules
+
+### Next.js 15 + App Router
+- **ALWAYS** use App Router (not Pages Router)
+- **ALWAYS** use TypeScript with strict mode enabled
+- **ALWAYS** use Server Components by default, only use Client Components when necessary (state, events, browser APIs)
+- **ALWAYS** add "use client" directive at the top of client components
+- **NEVER** use default exports for components - always use named exports
+- **ALWAYS** use proper file naming: kebab-case for files, PascalCase for components
+
+### TypeScript Standards
+- **ALWAYS** use strict mode TypeScript configuration
+- **ALWAYS** import types from `types/schemas.ts` for consistency
+- **ALWAYS** use Zod schemas for validation before TypeScript types
+- **NEVER** use `any` type - always define proper types
+- **ALWAYS** use const assertions for readonly arrays and objects
+- **ALWAYS** prefer interface over type for object shapes when extending is likely
+
+### AI Integration Patterns
+- **ALWAYS** use the service layer (`lib/services/insurance-ai-service.ts`) for AI operations
+- **NEVER** call AI APIs directly from components or hooks
+- **ALWAYS** implement retry logic with temperature adjustment for AI failures
+- **ALWAYS** validate AI responses with Zod schemas
+- **ALWAYS** provide fallback responses for AI operation failures
+- **ALWAYS** use appropriate error boundaries for AI components
+
+## Architecture Patterns
+
+### Service Layer Architecture
+- **ALWAYS** centralize business logic in services (`lib/services/`)
+- **ALWAYS** use the `InsuranceAIService` for all AI operations
+- **ALWAYS** use the `PolicyService` for policy parsing and templates
+- **ALWAYS** implement caching in services for expensive operations
+- **ALWAYS** use custom error types (`InsuranceAIError`, `PolicyServiceError`)
+- **NEVER** put business logic directly in components or API routes
+
+### Custom Hooks Pattern
+- **ALWAYS** use custom hooks for business logic and state management
+- **ALWAYS** follow single responsibility principle - one domain per hook
+- **ALWAYS** implement error handling within hooks
+- **ALWAYS** provide loading states in hook returns
+- **ALWAYS** use proper dependency arrays to avoid unnecessary re-renders
+- **ALWAYS** document hooks with JSDoc comments
+- **PREFERRED** hooks: `useCategoryAnalysis`, `useInsuranceSettings`, `useSituationSuggestions`
+
+### Component Architecture
+- **ALWAYS** separate UI components from business logic
+- **ALWAYS** use shadcn/ui components from `components/ui/`
+- **ALWAYS** wrap AI-related components with `AIErrorBoundary`
+- **ALWAYS** include accessibility attributes (title, ARIA labels)
+- **ALWAYS** provide loading states for async operations
+- **ALWAYS** use `useIsMobile` hook for responsive adaptations
+- **PREFERRED** component structure:
+  ```
+  components/
+  ├── ui/                      # shadcn/ui base components
+  ├── assistant-ui/            # Chat interface components
+  ├── error-boundaries/        # Error boundary components
+  ├── policy-*.tsx             # Policy-specific components
+  └── category-scores.tsx      # Insurance category display
+  ```
+
+### Error Handling Strategy
+- **ALWAYS** use error boundaries for React errors
+- **ALWAYS** use `AIErrorBoundary` for AI-related components
+- **ALWAYS** use `GeneralErrorBoundary` for general React errors
+- **ALWAYS** provide user-friendly error messages
+- **ALWAYS** implement graceful degradation for failed AI operations
+- **NEVER** let unhandled errors crash the application
+
+### State Management Patterns
+- **ALWAYS** use React Context with localStorage persistence for policy data
+- **ALWAYS** use custom hooks for domain-specific state (`useInsuranceSettings`)
+- **ALWAYS** implement optimistic updates where appropriate
+- **NEVER** use global state libraries unless absolutely necessary
+- **ALWAYS** prefer local component state over global state when possible
+
+## Data & Validation Rules
+
+### Zod Schema Standards
+- **ALWAYS** define schemas in `types/schemas.ts`
+- **ALWAYS** validate all AI responses with Zod schemas
+- **ALWAYS** validate form inputs with Zod schemas
+- **ALWAYS** use Zod for API route validation
+- **ALWAYS** provide meaningful error messages in schema definitions
+- **ALWAYS** export TypeScript types from Zod schemas using `z.infer`
+
+### Type System Guidelines
+- **ALWAYS** use types from `types/schemas.ts` for consistency
+- **NEVER** define duplicate types - import from the schema file
+- **ALWAYS** use the consolidated schemas instead of individual type definitions
+- **PREFERRED** pattern: `type MyType = z.infer<typeof MyTypeSchema>`
+
+## AI & Service Integration
+
+### AI Service Usage
+- **ALWAYS** use `InsuranceAIService.generateCategories()` for category analysis
+- **ALWAYS** use `InsuranceAIService.generateSituationSuggestions()` for suggestions
+- **ALWAYS** implement proper error handling for AI operations
+- **ALWAYS** use the multi-model fallback strategy (Claude → Groq → fallback)
+- **ALWAYS** cache expensive AI operations with appropriate TTL
+- **NEVER** make direct AI API calls from components
+
+### Chat Interface (Assistant-UI)
+- **ALWAYS** use `@assistant-ui/react` components for chat interfaces
+- **ALWAYS** implement proper message validation with schemas
+- **ALWAYS** handle streaming responses appropriately
+- **ALWAYS** provide tool execution feedback to users
+- **NEVER** block the UI during long-running AI operations
+
+## Performance & Optimization
+
+### Loading & UX Patterns
+- **ALWAYS** show loading states for operations longer than 500ms
+- **ALWAYS** provide progress indicators for multi-step operations
+- **ALWAYS** implement skeleton components for content loading
+- **ALWAYS** use optimistic updates for fast user feedback
+- **ALWAYS** debounce expensive operations (search, AI calls)
+
+### Caching Strategy
+- **ALWAYS** implement in-memory caching for expensive AI operations
+- **ALWAYS** use localStorage for user settings persistence
+- **ALWAYS** implement proper cache invalidation
+- **NEVER** cache sensitive user data
+- **ALWAYS** set appropriate TTL for cached data
+
+## Styling & UI Standards
+
+### Tailwind CSS + shadcn/ui
+- **ALWAYS** use Tailwind CSS utility classes
+- **ALWAYS** use shadcn/ui components from `components/ui/`
+- **ALWAYS** follow the established design system
+- **ALWAYS** implement responsive design with mobile-first approach
+- **ALWAYS** use the `useIsMobile` hook for responsive logic
+- **NEVER** write custom CSS unless absolutely necessary
+
+### Responsive Design
+- **ALWAYS** test on mobile, tablet, and desktop viewports
+- **ALWAYS** use appropriate breakpoints (sm, md, lg, xl)
+- **ALWAYS** implement touch-friendly interfaces for mobile
+- **ALWAYS** use proper spacing and typography scales
+
+## File Organization & Naming
+
+### Directory Structure
+- **ALWAYS** follow the established directory structure
+- **ALWAYS** group related files together
+- **ALWAYS** use descriptive directory names
+- **PREFERRED** structure:
+  ```
+  app/                 # Next.js App Router pages
+  components/          # React components
+  hooks/              # Custom hooks
+  lib/services/       # Business logic services
+  types/              # Type definitions and schemas
+  actions/            # Server actions (legacy - use services instead)
+  ```
+
+### File Naming Conventions
+- **ALWAYS** use kebab-case for file names (`policy-analysis.tsx`)
+- **ALWAYS** use PascalCase for component names (`PolicyAnalysis`)
+- **ALWAYS** use camelCase for function and variable names
+- **ALWAYS** use descriptive names that indicate purpose
+- **ALWAYS** include file extensions in imports
+
+## Development Workflow
+
+### Code Quality Standards
+- **ALWAYS** run `bun run lint` before committing
+- **ALWAYS** fix linting errors immediately
+- **ALWAYS** use meaningful commit messages
+- **ALWAYS** test components with different data scenarios
+- **ALWAYS** test error conditions and edge cases
+
+### Testing Approach
+- **ALWAYS** test AI operations with various PDF formats
+- **ALWAYS** validate category generation with different queries  
+- **ALWAYS** test error handling with network failures
+- **ALWAYS** ensure responsive design across devices
+- **ALWAYS** test form validation with invalid inputs
+
+### Environment & Dependencies
+- **PREFERRED** runtime: Bun (fallback to Node.js 20+)
+- **ALWAYS** use exact version pinning for critical dependencies
+- **NEVER** install packages without understanding their purpose
+- **ALWAYS** update package.json scripts when adding new commands
+
+## Security & Privacy
+
+### Data Handling
+- **ALWAYS** process AI operations server-side only
+- **NEVER** expose API keys client-side
+- **ALWAYS** validate user inputs before processing
+- **NEVER** log sensitive user information
+- **ALWAYS** use proper error handling to avoid information leakage
+
+### API Security
+- **ALWAYS** validate all API route inputs with Zod schemas
+- **ALWAYS** implement proper error responses
+- **NEVER** expose internal error details to clients
+- **ALWAYS** use environment variables for sensitive configuration
+
+## Specific Component Patterns
+
+### Form Components
+- **ALWAYS** use react-hook-form with Zod resolvers
+- **ALWAYS** implement proper form validation
+- **ALWAYS** provide immediate validation feedback
+- **ALWAYS** handle form submission errors gracefully
+- **ALWAYS** disable submit buttons during submission
+
+### AI-Enhanced Components
+- **ALWAYS** wrap with `AIErrorBoundary`
+- **ALWAYS** provide loading states
+- **ALWAYS** implement retry mechanisms
+- **ALWAYS** show fallback content on AI failures
+- **ALWAYS** validate AI responses before rendering
+
+### Policy Analysis Components
+- **ALWAYS** use the `PolicyContext` for policy data
+- **ALWAYS** implement proper error handling for parsing failures
+- **ALWAYS** provide clear user feedback during analysis
+- **ALWAYS** use appropriate loading indicators
+- **ALWAYS** handle edge cases in policy data
+
+## Common Patterns to Follow
+
+### Hook Implementation Pattern
+```typescript
+export function useCustomHook() {
+  const [state, setState] = useState();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Implementation with proper error handling
+  // Return loading, error, and data states
+  
+  return { data: state, loading, error, /* methods */ };
+}
+```
+
+### Service Layer Pattern
+```typescript
+export class CustomService {
+  private static cache = new Map();
+  
+  static async performOperation(input: ValidatedInput): Promise<ValidatedOutput> {
+    try {
+      // Check cache first
+      // Perform operation with proper error handling
+      // Validate output with Zod
+      // Update cache
+      return validatedResult;
+    } catch (error) {
+      throw new CustomServiceError("User-friendly message", error);
+    }
+  }
+}
+```
+
+### Component with Error Boundary Pattern
+```typescript
+export function AIComponent() {
+  return (
+    <AIErrorBoundary>
+      <div>
+        {/* AI-enhanced content */}
+      </div>
+    </AIErrorBoundary>
+  );
+}
+```
+
+## Migration Notes
+
+### Legacy Patterns to Avoid
+- **AVOID** using `actions/` for new business logic - use `lib/services/` instead
+- **AVOID** direct AI API calls - use the service layer
+- **AVOID** defining types outside of `types/schemas.ts`
+- **AVOID** creating new error handling patterns - use established error boundaries
+
+### Preferred Modernization Path
+1. **NEW FEATURES**: Always use service layer + custom hooks pattern
+2. **EXISTING CODE**: Gradually migrate to new patterns when touching files
+3. **ERROR HANDLING**: Wrap new components with appropriate error boundaries
+4. **TYPE DEFINITIONS**: Consolidate types in `types/schemas.ts`
+
+## Environment Variables Required
+```
+GROQ_API_KEY=           # For Groq AI models
+ANTHROPIC_API_KEY=      # For Claude models  
+UNSTRUCTURED_API_KEY=   # For PDF parsing
+BLOB_READ_WRITE_TOKEN=  # For file storage
+TRIGGER_SECRET_KEY=     # For background jobs
+```
+
+## Development Commands
+- `bun run dev` - Start development server with Turbopack
+- `bun run build` - Build for production
+- `bun run lint` - Run ESLint
+- `bun run fetch:plans` - Fetch sample plans (development utility)
+
+Remember: Always prioritize user experience, maintainability, and type safety. When in doubt, follow the established patterns in the existing codebase and prefer explicit, well-documented code over clever abstractions. 

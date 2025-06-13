@@ -1,13 +1,12 @@
 "use client"
 
-import type React from "react"
 
-import { useState, useEffect } from "react"
-import { Label } from "@/components/ui/label"
 import { CurrencyInput } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import type { InsuranceSettings } from "@/types/insurance"
 import { useComposerRuntime } from "@assistant-ui/react"
+import { useEffect, useState } from "react"
 
 interface SettingsBarProps {
   settings: InsuranceSettings
@@ -34,18 +33,23 @@ export function SettingsBar({ settings, onSettingsChange }: SettingsBarProps) {
 
   const composerRuntime = useComposerRuntime();
   
+  // Update input values when settings change
   useEffect(() => {
     setDeductibleInput(settings.deductibleSpent.toString())
     setOutOfPocketInput(settings.outOfPocketSpent.toString())
+  }, [settings.deductibleSpent, settings.outOfPocketSpent]);
+
+  // Update composer runtime when settings change
+  useEffect(() => {
     composerRuntime.setRunConfig({
       custom: {
         ...composerRuntime.getState().runConfig?.custom,
         isInNetwork: settings.isInNetwork,
-        deductibleSpent: Number(deductibleInput),
-        outOfPocketSpent: Number(outOfPocketInput),
+        deductibleSpent: settings.deductibleSpent,
+        outOfPocketSpent: settings.outOfPocketSpent,
       },
     });
-  }, [composerRuntime, settings.deductibleSpent, settings.outOfPocketSpent, settings.isInNetwork, deductibleInput, outOfPocketInput]);
+  }, [settings.isInNetwork, settings.deductibleSpent, settings.outOfPocketSpent]);
 
   return (
     <div className="bg-gray-50 p-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

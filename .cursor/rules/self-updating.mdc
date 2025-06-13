@@ -1,0 +1,184 @@
+---
+description: Self-updating rule that monitors project structure and adds context-aware rules
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Self-Updating Cursor Rule System
+
+## Purpose
+This rule automatically monitors project structure changes and updates cursor rules when significant architectural changes occur. It ONLY ADDS to existing rules, never deletes them.
+
+## Current Project State (Auto-Updated)
+- **Last Updated**: Initial creation
+- **Project Type**: Next.js 15 Health Insurance Coverage Analyzer
+- **Key Dependencies**: @assistant-ui/react, Anthropic Claude, Groq, Zod, Tailwind CSS, shadcn/ui
+- **Architecture Pattern**: Service Layer + Custom Hooks + Error Boundaries
+- **Major Directories**: app/, components/, hooks/, lib/services/, types/
+
+## Auto-Update Triggers
+This rule updates itself when it detects:
+
+### Major Structure Changes
+- New top-level directories (app/, components/, lib/, etc.)
+- New service files in `lib/services/`
+- New major dependencies in package.json
+- New custom hook patterns in `hooks/`
+- New error boundary patterns in `components/error-boundaries/`
+
+### Technology Stack Changes
+- New AI models or providers
+- New UI libraries or frameworks
+- New validation or schema libraries
+- New testing frameworks
+- New deployment or build tools
+
+### Architecture Pattern Changes
+- New state management patterns
+- New data fetching approaches
+- New authentication/authorization patterns
+- New caching strategies
+- New error handling patterns
+
+## Rule Addition Guidelines
+When adding new rules, this system:
+
+### ALWAYS ADDS (Never Deletes)
+- Append new patterns to existing categories
+- Create new sections for new architectural patterns
+- Add examples for new technologies
+- Extend existing guidelines with new contexts
+
+### NEVER REMOVES
+- Existing working patterns
+- Established naming conventions
+- Current best practices
+- Functional code examples
+
+## Current Context-Aware Rules
+
+### AI Integration Context
+Based on current AI service architecture, enforce:
+- Multi-model fallback patterns (Claude → Groq → fallback)
+- Service layer isolation for AI operations
+- Zod validation for all AI responses
+- Error boundary wrapping for AI components
+- Caching strategies for expensive AI operations
+
+### Custom Hooks Context
+Based on current hook architecture, enforce:
+- Single responsibility per hook
+- Error state management within hooks
+- Loading state provision
+- Proper dependency tracking
+- JSDoc documentation requirements
+
+### Error Boundary Context
+Based on current error handling architecture, enforce:
+- AIErrorBoundary for AI operations
+- GeneralErrorBoundary for React errors
+- Graceful degradation patterns
+- User-friendly error messages
+- Error recovery mechanisms
+
+### Type Safety Context
+Based on current type system, enforce:
+- Consolidated Zod schemas in types/schemas.ts
+- Type imports from schema files
+- Custom error types for services
+- Strict TypeScript configuration
+- Validation-first approach
+
+## Self-Update Process
+
+### Detection Logic
+```typescript
+// Pseudo-code for self-update detection
+const shouldUpdate = (projectState: ProjectState) => {
+  const majorChanges = [
+    hasNewTopLevelDirectory(projectState),
+    hasNewServiceFile(projectState),
+    hasNewMajorDependency(projectState),
+    hasNewArchitecturalPattern(projectState),
+    hasNewTechnologyStack(projectState)
+  ];
+  
+  return majorChanges.some(change => change === true);
+};
+```
+
+### Update Actions
+When major changes detected:
+1. **Analyze** new patterns in codebase
+2. **Identify** new best practices to enforce
+3. **Append** new rules to existing categories
+4. **Create** new sections for new patterns
+5. **Preserve** all existing working rules
+6. **Update** project state timestamp
+
+## Integration with Existing Rules
+This rule enhances and extends the main index.mdc by:
+- Adding context-specific guidelines
+- Providing dynamic rule updates
+- Monitoring architectural evolution
+- Ensuring rule consistency across project growth
+
+## Rule Priority
+- **Primary**: Follow existing rules in index.mdc
+- **Secondary**: Apply context-aware additions from this rule
+- **Tertiary**: Use general best practices for new scenarios
+
+## Monitoring Patterns
+
+### File Structure Monitoring
+- Track new directories and their purposes
+- Monitor file naming convention adherence
+- Detect new component patterns
+- Identify new utility functions
+
+### Dependency Monitoring
+- Track new major dependencies
+- Monitor version changes for breaking changes
+- Detect new AI/ML libraries
+- Identify new UI/styling frameworks
+
+### Architecture Monitoring
+- Track new design patterns
+- Monitor state management changes
+- Detect new data flow patterns
+- Identify new testing approaches
+
+## Auto-Generated Context (Will Update)
+This section will automatically update when major changes are detected:
+
+### Current Major File Patterns
+- `app/api/*/route.ts` - API routes with Zod validation
+- `components/*/error-boundaries/` - Error boundary components
+- `lib/services/*.ts` - Business logic services
+- `hooks/use-*.ts` - Custom React hooks
+- `types/schemas.ts` - Consolidated Zod schemas
+
+### Current Architectural Decisions
+- Service layer centralization for AI operations
+- Custom hooks for state management
+- Error boundaries for graceful degradation
+- Zod-first validation approach
+- Multi-model AI fallback strategy
+
+### Current Technology Constraints
+- Bun runtime preference
+- TypeScript strict mode
+- Next.js 15 App Router
+- Server-side AI operations
+- Client-side UI interactions
+
+## Rule Execution Order
+1. Apply base rules from index.mdc
+2. Apply context-aware additions from this rule
+3. Use general best practices for unspecified scenarios
+4. Prioritize user-provided specific instructions
+
+---
+
+**Note**: This rule system is designed to evolve with the project while maintaining stability. It only adds helpful context and never removes working patterns.

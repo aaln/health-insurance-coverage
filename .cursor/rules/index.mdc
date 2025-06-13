@@ -1,0 +1,161 @@
+---
+description: Global rules for Health Insurance Coverage Analyzer development
+globs: 
+alwaysApply: true
+---
+
+# Health Insurance Coverage Analyzer - Cursor Rules
+
+## Project Context
+This is a Next.js 15 TypeScript application for analyzing health insurance policies using AI. The app parses PDF documents and provides interactive analysis through multiple AI models with sophisticated fallback logic.
+
+## Core Technologies & Architecture
+- **Framework**: Next.js 15 with App Router, TypeScript strict mode
+- **Styling**: Tailwind CSS + shadcn/ui components  
+- **AI**: Multi-model approach (Anthropic Claude Sonnet 4 primary, Groq)
+- **UI**: @assistant-ui/react for chat interface
+- **Validation**: Zod schemas for type safety
+- **Runtime**: Bun preferred
+
+## Essential Development Rules
+
+### File Creation Policy
+- **PREFER** editing existing files over creating new ones
+- **ONLY** create files when absolutely necessary for the specific task
+- **NEVER** proactively create documentation files unless explicitly requested
+- **FOLLOW** established directory structure and naming conventions
+
+### Architecture Patterns to Follow
+
+#### Service Layer First
+- **ALL** AI operations must go through `lib/services/insurance-ai-service.ts`
+- **ALL** business logic belongs in `lib/services/` directory
+- **NEVER** call AI APIs directly from components or hooks
+- **ALWAYS** implement caching for expensive operations
+- **ALWAYS** provide fallback responses for AI failures
+
+#### Custom Hooks Pattern
+- **USE** custom hooks for business logic, keep components focused on rendering
+- **SINGLE** responsibility per hook (one domain per hook)
+- **INCLUDE** error handling within hooks
+- **PROVIDE** loading states in hook returns
+- **DOCUMENT** hooks with comprehensive JSDoc comments
+
+#### Component Architecture
+- **WRAP** AI operations with `AIErrorBoundary` from `components/error-boundaries/`
+- **INCLUDE** accessibility attributes (`title`, ARIA labels)
+- **ALWAYS** provide loading states for async operations
+- **USE** `useIsMobile` hook for responsive design
+- **SEPARATE** UI components from business logic
+
+### Type Safety & Validation Rules
+- **USE** Zod schemas from `types/schemas.ts` for ALL validation
+- **IMPORT** types from schema files for consistency
+- **VALIDATE** ALL AI responses with appropriate schemas
+- **USE** custom error types (`InsuranceAIError`, `PolicyServiceError`)
+- **NEVER** use `any` type - always define proper types
+
+### State Management Patterns
+- **USE** `PolicyProvider` context for policy data with localStorage persistence
+- **CENTRALIZE** settings with `useInsuranceSettings` hook
+- **USE** domain-specific hooks for AI state (`useCategoryAnalysis`, etc.)
+- **IMPLEMENT** error boundaries for error state management
+- **DISTRIBUTE** loading states across relevant hooks
+
+### Error Handling Strategy
+- **USE** error boundaries for React errors
+- **USE** `AIErrorBoundary` for AI-related components
+- **USE** `GeneralErrorBoundary` for general React errors
+- **PROVIDE** user-friendly error messages
+- **IMPLEMENT** graceful degradation for failed AI operations
+
+## File Organization Standards
+
+### Directory Structure
+Follow the established architecture:
+```
+components/
+├── ui/                      # shadcn/ui base components
+├── assistant-ui/            # Chat interface components
+├── error-boundaries/        # Error boundary components
+├── policy-*.tsx             # Policy-specific components
+└── [feature].tsx           # Feature components
+
+hooks/                       # Custom hooks with single responsibility
+lib/services/               # Centralized business logic
+types/schemas.ts            # Consolidated Zod schemas
+```
+
+### Naming Conventions
+- **USE** kebab-case for file names (`policy-analysis.tsx`)
+- **USE** PascalCase for component names (`PolicyAnalysis`)
+- **USE** camelCase for function and variable names
+- **USE** descriptive names that indicate purpose
+
+## AI Integration Best Practices
+
+### AI Service Usage
+- **USE** `InsuranceAIService.generateCategories()` for category analysis
+- **USE** `InsuranceAIService.generateSituationSuggestions()` for suggestions
+- **IMPLEMENT** proper error handling for AI operations
+- **USE** multi-model fallback strategy (Claude → Groq → fallback)
+- **CACHE** expensive AI operations with appropriate TTL
+
+### Performance Considerations
+- **SHOW** loading states for operations longer than 500ms
+- **PROVIDE** progress indicators for multi-step operations
+- **IMPLEMENT** skeleton components for content loading
+- **USE** optimistic updates for fast user feedback
+- **DEBOUNCE** expensive operations (search, AI calls)
+
+## Code Quality Standards
+
+### TypeScript Patterns
+- **USE** strict mode TypeScript configuration
+- **PREFER** type inference where clear
+- **USE** discriminated unions for complex state
+- **EXPORT** types from schema files
+
+### React Best Practices
+- **PREFER** function components with hooks
+- **USE** proper dependency arrays in useEffect
+- **IMPLEMENT** error boundaries for error recovery
+- **FOLLOW** React 18+ concurrent features
+
+### Styling Guidelines
+- **USE** Tailwind CSS utility classes
+- **USE** shadcn/ui components from `components/ui/`
+- **FOLLOW** established design system
+- **IMPLEMENT** responsive design with mobile-first approach
+- **USE** `useIsMobile` hook for responsive logic
+
+## Security & Privacy
+- **PROCESS** all AI operations server-side only
+- **NEVER** expose API keys client-side
+- **VALIDATE** all inputs with Zod schemas
+- **USE** environment variables for API keys
+- **IMPLEMENT** proper error handling to avoid information leakage
+
+## Development Commands
+```bash
+bun run dev          # Development server
+bun run build        # Production build  
+bun run lint         # Linting
+bun run fetch:plans  # Fetch sample data
+```
+
+## Common Anti-Patterns to Avoid
+- Don't bypass the service layer for AI operations
+- Don't skip Zod validation for AI responses
+- Don't create components without proper error handling
+- Don't hardcode values that should be configurable
+- Don't create unnecessary files or documentation
+
+## Environment Variables Required
+```
+GROQ_API_KEY=           # For Groq AI models
+ANTHROPIC_API_KEY=      # For Claude models
+UNSTRUCTURED_API_KEY=   # For PDF parsing
+BLOB_READ_WRITE_TOKEN=  # For file storage
+TRIGGER_SECRET_KEY=     # For background jobs
+```

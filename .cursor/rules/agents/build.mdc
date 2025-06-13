@@ -1,0 +1,289 @@
+---
+description: Background agent to run build with test mode, fix build errors, lint issues, and format code
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.jsx"
+alwaysApply: false
+trigger: manual
+agentMode: background
+---
+
+# Build & Code Quality Agent
+
+## Purpose
+This background agent automatically runs the build process in test mode, fixes critical build errors, resolves major linting issues, and applies code formatting. It runs as a background process to maintain code quality without interrupting development workflow.
+
+## Execution Sequence
+
+### 1. Environment Setup
+Set the test mode environment variable for Next.js builds:
+```bash
+export __NEXT_TEST_MODE="1"
+```
+
+### 2. Pre-Build Analysis
+Before running build, check current project state:
+```bash
+# Check for obvious syntax errors
+bun run lint --quiet || echo "Linting issues detected"
+
+# Check TypeScript compilation
+npx tsc --noEmit --skipLibCheck || echo "TypeScript errors detected"
+```
+
+### 3. Build Execution
+Run the build process with test mode enabled:
+```bash
+__NEXT_TEST_MODE="1" bun run build
+```
+
+### 4. Error Analysis & Auto-Fix
+If build fails, analyze and fix common issues:
+
+#### TypeScript Errors
+- **Missing imports**: Auto-add missing imports from established patterns
+- **Type mismatches**: Fix type annotations based on schema files
+- **Unused variables**: Remove or prefix with underscore
+- **Missing return types**: Add explicit return types for functions
+
+#### Import/Export Issues
+- **Circular dependencies**: Identify and resolve circular imports
+- **Missing default exports**: Add or convert to named exports (project preference)
+- **Invalid import paths**: Fix relative paths and module resolution
+
+#### Next.js Specific Issues
+- **Client/Server component conflicts**: Add "use client" directive where needed
+- **Dynamic imports**: Fix dynamic import syntax for Next.js
+- **API route issues**: Validate API route structure and exports
+
+### 5. Linting & Auto-Fix
+Run comprehensive linting with auto-fix:
+```bash
+# Fix auto-fixable ESLint issues
+bun run lint --fix
+
+# Fix TypeScript strict mode issues
+npx tsc --noEmit --strict
+```
+
+#### Critical Lint Issues to Auto-Fix
+- **Unused variables**: Remove or prefix appropriately
+- **Missing dependencies**: Add to package.json if needed
+- **Import sorting**: Organize imports according to project standards
+- **Console statements**: Remove console.log in production code
+- **React hooks rules**: Fix hooks dependency arrays
+
+### 6. Code Formatting
+Apply consistent code formatting:
+```bash
+# Run Prettier on all relevant files
+npx prettier --write "**/*.{ts,tsx,js,jsx,json,css,md}"
+
+# Format specific file types if Prettier config exists
+npx prettier --write --config .prettierrc "**/*.{ts,tsx}"
+```
+
+### 7. Verification
+Verify all fixes worked:
+```bash
+# Final build check
+__NEXT_TEST_MODE="1" bun run build
+
+# Final lint check
+bun run lint --quiet
+
+# TypeScript check
+npx tsc --noEmit
+```
+
+## Auto-Fix Patterns
+
+### TypeScript Issues
+
+#### Missing Type Imports
+```typescript
+// BEFORE: Error - 'ParsedPolicy' is not defined
+const policy = data as ParsedPolicy;
+
+// AFTER: Auto-add import
+import type { ParsedPolicy } from "@/types/schemas";
+const policy = data as ParsedPolicy;
+```
+
+#### Incorrect Type Usage
+```typescript
+// BEFORE: Type error
+const result: string = await generateCategories(query);
+
+// AFTER: Fix return type
+const result: { categories: CategoryWithSubcategories[], formatted_query: string } = await generateCategories(query);
+```
+
+### React/Next.js Issues
+
+#### Missing Client Directive
+```typescript
+// BEFORE: useState used in server component
+import { useState } from 'react';
+
+// AFTER: Add client directive
+"use client";
+import { useState } from 'react';
+```
+
+#### Server Action Structure
+```typescript
+// BEFORE: Missing "use server"
+export async function myAction() {
+  return result;
+}
+
+// AFTER: Add server directive
+"use server";
+export async function myAction() {
+  return result;
+}
+```
+
+### Import/Export Issues
+
+#### Convert Default to Named Exports
+```typescript
+// BEFORE: Default export (against project standards)
+export default function MyComponent() {}
+
+// AFTER: Named export
+export function MyComponent() {}
+```
+
+#### Fix Circular Dependencies
+```typescript
+// BEFORE: Circular import
+import { ServiceA } from './service-a';
+// service-a imports from this file
+
+// AFTER: Extract shared types
+import type { SharedType } from './types';
+import { ServiceA } from './service-a';
+```
+
+## Error Handling Strategy
+
+### Critical Errors (Must Fix)
+- **Build failures**: Syntax errors, missing dependencies
+- **Type errors**: Strict TypeScript violations
+- **Import errors**: Missing modules, circular dependencies
+- **React errors**: Invalid hook usage, component structure
+
+### Non-Critical Warnings (May Skip)
+- **Unused variables** in development files
+- **Console statements** in development mode
+- **Performance warnings** that don't break functionality
+- **Accessibility warnings** (log for manual review)
+
+### Escalation Criteria
+Stop auto-fixing and alert developer when:
+- **Complex refactoring needed**: Major architectural changes required
+- **Multiple conflicting solutions**: Ambiguous fix strategies
+- **External dependency issues**: Package compatibility problems
+- **Custom business logic errors**: Domain-specific validation failures
+
+## Logging & Reporting
+
+### Success Report
+```
+✅ Build Agent Completed Successfully
+- Build: ✅ Passed with test mode
+- Linting: ✅ 15 issues auto-fixed
+- Formatting: ✅ 23 files formatted
+- TypeScript: ✅ No errors
+- Total time: 2m 14s
+```
+
+### Error Report
+```
+❌ Build Agent Encountered Issues
+- Build: ❌ Failed (2 critical errors)
+- Errors requiring manual fix:
+  1. Circular dependency: components/policy-analysis.tsx ↔ hooks/use-category-analysis.ts
+  2. Missing environment variable: ANTHROPIC_API_KEY
+- Auto-fixed: 8 lint issues, 12 format issues
+- Manual intervention required
+```
+
+### Change Summary
+Log all changes made:
+```
+📝 Changes Applied by Build Agent
+Files modified:
+- actions/insurance-analyzer.ts: Added missing imports
+- components/policy-analysis.tsx: Fixed TypeScript errors
+- hooks/use-category-analysis.ts: Added return type annotations
+- 15 files: Applied Prettier formatting
+```
+
+## Integration with Development Workflow
+
+### Trigger Conditions
+- **Manual trigger**: Developer runs agent explicitly
+- **Pre-commit hook**: Run before git commits (optional)
+- **CI/CD integration**: Run in continuous integration
+- **File watch mode**: Run on significant file changes (optional)
+
+### Safety Measures
+- **Backup creation**: Git stash before major changes
+- **Incremental fixes**: Apply fixes in stages
+- **Rollback capability**: Provide undo mechanism for changes
+- **Developer approval**: Prompt for confirmation on major fixes
+
+## Configuration
+
+### Environment Variables Required
+```bash
+__NEXT_TEST_MODE="1"          # Enable Next.js test mode
+NODE_ENV="development"        # Development environment
+SKIP_ENV_VALIDATION="1"       # Skip env validation in test mode (optional)
+```
+
+### File Exclusions
+Skip auto-fixing for:
+- `node_modules/`
+- `.next/`
+- `dist/`
+- `build/`
+- `*.config.js` files (may need manual review)
+- `*.d.ts` files (type declarations)
+
+### Project-Specific Rules
+Based on current project architecture:
+- **Prefer service layer**: Guide imports to `lib/services/`
+- **Use Zod schemas**: Import types from `types/schemas.ts`
+- **Error boundaries**: Wrap AI components with `AIErrorBoundary`
+- **Named exports**: Convert default exports to named exports
+- **Server actions**: Ensure proper "use server" directives
+
+## Performance Considerations
+- **Parallel processing**: Run lint and format concurrently when possible
+- **Incremental builds**: Only rebuild changed modules
+- **Cache management**: Utilize build caches for faster execution
+- **Resource monitoring**: Track CPU and memory usage during fixes
+
+## Advanced Features
+
+### Smart Error Pattern Recognition
+- **Learn from fixes**: Build database of common error patterns
+- **Contextual fixes**: Apply different fixes based on file type/location
+- **Dependency analysis**: Understand component relationships
+- **Impact assessment**: Predict side effects of fixes
+
+### Integration with Other Tools
+- **Git integration**: Auto-commit fixes with descriptive messages
+- **IDE integration**: Provide real-time feedback to developer
+- **Monitoring integration**: Report build health metrics
+- **Documentation updates**: Update README or docs when needed
+
+---
+
+**Note**: This agent operates in background mode and requires manual triggering. It prioritizes build stability over development convenience and will always prefer working code over perfect code.
