@@ -49,7 +49,7 @@ export function SettingsBar({ settings, onSettingsChange }: SettingsBarProps) {
         outOfPocketSpent: settings.outOfPocketSpent,
       },
     });
-  }, [settings.isInNetwork, settings.deductibleSpent, settings.outOfPocketSpent]);
+  }, [settings.isInNetwork, settings.deductibleSpent, settings.outOfPocketSpent, composerRuntime]);
 
   return (
     <div className="bg-gray-50 p-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

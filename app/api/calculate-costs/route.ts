@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Generate healthcare scenarios based on medical information
-    const scenarios = await generateHealthcareScenarios(medicalData, policy);
+    const scenarios = await generateHealthcareScenarios(medicalData);
     
     // Calculate costs for each scenario
     const results: MedicalScenarioResult[] = [];
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
             copayments: 0,
             outOfPocketMax: policy.important_questions.out_of_pocket_limit_for_plan.individual,
           },
-          policyScore: "N/A" as any,
+          policyScore: "N/A",
           recommendations: ["Unable to calculate costs for this scenario. Please contact your insurance provider."],
         });
       }
@@ -80,8 +80,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function generateHealthcareScenarios(
-  medicalData: MedicalInformation,
-  policy: ParsedPolicy
+  medicalData: MedicalInformation
 ): Promise<string[]> {
   const systemPrompt = `You are a healthcare cost analyst. Based on the user's medical information and insurance policy, generate 5-8 realistic healthcare scenarios that they might encounter in the next year.
 

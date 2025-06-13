@@ -1,3 +1,8 @@
+---
+description: Attach this rule if someone is modifying the app/ codebase.
+globs: 
+alwaysApply: false
+---
 # Health Insurance Coverage Analyzer - Contributor Guidelines
 
 ## Project Overview

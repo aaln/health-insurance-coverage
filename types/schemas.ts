@@ -516,8 +516,8 @@ export const MedicalScenarioResultSchema = z.object({
     outOfPocketMax: z.number().min(0, "Payment cannot be negative"),
   }),
   /** Policy score for this scenario */
-  policyScore: z.enum(["A", "B", "C", "D", "F"], {
-    errorMap: () => ({ message: "Score must be A, B, C, D, or F" }),
+  policyScore: z.enum(["A", "B", "C", "D", "F", "N/A"], {
+    errorMap: () => ({ message: "Score must be A, B, C, D, F, or N/A" }),
   }),
   /** Recommendations for this scenario */
   recommendations: z.array(z.string()),

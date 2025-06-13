@@ -221,3 +221,6 @@ TRIGGER_SECRET_KEY=     # For background jobs
 - Optimize AI model selection based on query type
 - Add comprehensive error recovery mechanisms
 - Implement progressive web app features
+
+
+# Read, pay attention, and apply to the rules in .cursor/rules

@@ -10,28 +10,28 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHealthcareInformation } from "@/hooks/use-healthcare-information";
 import { HealthcareInformationSchema, type HealthcareInformation, type PersonHealthInfo } from "@/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-    AlertTriangle,
-    Calendar,
-    Heart,
-    Minus,
-    Pill,
-    Plus,
-    Save,
-    User,
-    Users,
-    X,
+  AlertTriangle,
+  Calendar,
+  Heart,
+  Minus,
+  Pill,
+  Plus,
+  Save,
+  User,
+  Users,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -66,7 +66,7 @@ export function HealthcareInformationModal({ children }: HealthcareInformationMo
     },
   });
 
-  const { control, register, handleSubmit, watch, setValue, reset, formState: { errors } } = form;
+  const { control, register, handleSubmit, watch, setValue, reset } = form;
   const membersArray = useFieldArray({ control, name: "members" });
   const watchedMembers = watch("members");
 
@@ -128,7 +128,7 @@ export function HealthcareInformationModal({ children }: HealthcareInformationMo
       <SheetTrigger asChild>
         {children}
       </SheetTrigger>
-      <SheetContent side="right" className="w-[80vw] sm:w-[60vw] max-w-none p-0 flex flex-col">
+      <SheetContent side="right" className="w-[95vw] sm:w-[80vw] lg:w-[50vw] max-w-none p-0 flex flex-col">
         <SheetHeader className="p-6 pb-0 border-b">
           <SheetTitle className="flex items-center gap-2">
             <Heart className="h-5 w-5 text-red-500" />
@@ -147,18 +147,24 @@ export function HealthcareInformationModal({ children }: HealthcareInformationMo
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-            <div className="px-6 py-3 border-b overflow-x-auto">
-              <TabsList className="flex gap-1 w-max min-w-full">
-                <TabsTrigger value="overview" className="flex items-center gap-2 whitespace-nowrap">
-                  <Users className="h-4 w-4" />
-                  Overview
+            <div className="px-4 sm:px-6 py-3 border-b">
+              <div className="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6">
+                <TabsList className="flex gap-1 w-max">
+                  <TabsTrigger value="overview" className="flex items-center gap-2 whitespace-nowrap text-xs sm:text-sm px-2 sm:px-3">
+                    <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden xs:inline">Overview</span>
+                    <span className="xs:hidden">Home</span>
                 </TabsTrigger>
                 {membersArray.fields.map((field, index) => (
-                  <TabsTrigger key={field.id} value={`member-${index}`} className="flex items-center gap-2 whitespace-nowrap">
-                    <User className="h-4 w-4" />
-                    Member {index + 1}
+                    <TabsTrigger key={field.id} value={`member-${index}`} className="flex items-center gap-1 sm:gap-2 whitespace-nowrap text-xs sm:text-sm px-2 sm:px-3">
+                      <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden xs:inline">Member {index + 1}</span>
+                      <span className="xs:hidden">M{index + 1}</span>
                     {index === 0 && (
-                      <Badge variant="secondary" className="ml-1 text-xs">Primary</Badge>
+                        <Badge variant="secondary" className="ml-1 text-xs px-1 py-0">
+                          <span className="hidden xs:inline">Primary</span>
+                          <span className="xs:hidden">P</span>
+                        </Badge>
                     )}
                   </TabsTrigger>
                 ))}
@@ -167,12 +173,13 @@ export function HealthcareInformationModal({ children }: HealthcareInformationMo
                   variant="ghost"
                   size="sm"
                   onClick={addMember}
-                  className="flex items-center gap-1 ml-2 whitespace-nowrap"
+                    className="flex items-center gap-1 ml-1 sm:max-w-2xl sm:ml-2 whitespace-nowrap text-xs sm:text-sm px-2 sm:px-3"
                 >
-                  <Plus className="h-4 w-4" />
+                    <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline">Add</span>
                 </Button>
               </TabsList>
+              </div>
             </div>
 
             <ScrollArea className="flex-1">

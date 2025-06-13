@@ -268,7 +268,8 @@ export default function PolicyAnalysis() {
                         fill="currentColor" 
                         d="M4 12a8 8 0 018-8v8z"
                       />
-                    </span>
+                    </svg>
+                  </span>
                   )}
                 </p>
                 <div className="flex flex-wrap gap-2 overflow-x-auto">
