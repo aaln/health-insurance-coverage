@@ -5,7 +5,7 @@ import { writeFileSync } from 'node:fs';
 
 dotenv.config();
 
-const API_KEY = process.env.GOV_MARKETPLACE_API_KEY || "fLQvglz885TUJMYR6OOUjBV0JojbxXcl"
+const API_KEY = process.env.GOV_MARKETPLACE_API_KEY
 const BASE_URL = 'https://marketplace.api.healthcare.gov/api/v1';
 const OUTPUT_PATH = './data/plans.json';
 

@@ -8,7 +8,7 @@ import { writeFileSync } from 'node:fs';
 
 dotenv.config({ path: '.env.local' });
 
-const API_KEY = process.env.GOV_FINDER_API_KEY || "3qMQFSkda9pLQD7p73PtaWvAW7F8U0d3";
+const API_KEY = process.env.GOV_FINDER_API_KEY;
 const BASE_URL = 'https://api.finder.healthcare.gov/v3.0';
 const OUTPUT_PATH = './data/finder-plans.json';
 
